@@ -1,0 +1,73 @@
+html, body {
+    height: 100%;
+ }
+  
+body {
+    margin: 0;
+    display: flex;
+
+    /* This centers our sketch horizontally. */
+    justify-content: center;
+
+    /* This centers our sketch vertically. */
+    align-items: center;
+}
+
+
+#center {
+    width: 100%;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.greeting-text {
+    text-align: center;
+    font-size: 35pt;
+    /* color: #FFFFFF; */
+    color: #76F74D; 
+    line-height: 150%;
+}
+
+
+.text-field{
+    position: absolute;
+
+    width: 30%;
+    background-color: #595959;
+    /* background-color: #151515; */
+
+    /* color: #76F74D; */
+    color: #FFFFFF;
+    text-align: center;
+    font-size: 35pt;
+
+    padding: 1px;
+    border: none;
+    /* border-bottom: 2px solid #76F74D; */
+    border-bottom: 2px solid white;
+}
+
+#binText {
+    position: absolute;
+    background-color: #595959;
+    /* background-color: #151515; */
+
+    color: #76F74D;
+    /* color: #FFFFFF; */
+    text-align: center;
+    font-size: 28pt;
+    padding: 10px;
+}
+
+#barcode {
+    display: block;
+    position: absolute;
+    /* width: 80%; */
+    text-align: center;
+    /* margin-top: auto; */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
