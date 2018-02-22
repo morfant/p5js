@@ -5,8 +5,12 @@ var msg_date, msg_all;
 var inByte = null;
 
 var printOnPaper = false;
-
 var sessionEnd = false;
+
+var blinkRate = 100;
+var trans = 255;
+
+var input_name = "";
 
 var playing = false;
 var input, button, greeting;
@@ -19,10 +23,12 @@ var binPrintInterval = 100; //ms
 var binText;
 var inputPosX = 450;
 var inputPosY = 500;
+var _fontSize = 80;
 var announcePrinting = "출력중입니다…";
 var announceSessionEnd = "감사합니다";
-var greet = "넥슨컴퓨터박물관에 오신 것을 환영합니다.\n\n이름을 입력하세요."
-var greeting_posY = 200;
+var greet = "넥슨컴퓨터박물관에 오신 것을 환영합니다.\n\n이름을 입력하세요.";
+var greeting_posY = 150;
+var binsPosY = 500;
 var enterInput = false;
 var textVelY = 20;
 var cnt = 0;
@@ -62,12 +68,16 @@ function setup() {
   });
   serial.on('data', serialEvent); // callback for when new data arrives
 
+  // make space
+  createElement("br");
+  createElement("br");
+  createElement("br");
+
   // Text Input 
   input = createInput();
   input.attribute('maxlength', '4');
   input.class("text-field"); // see data/style.css
   input.elt.focus();
-
 }
 
 function draw() {
@@ -81,23 +91,23 @@ function draw() {
   textAlign(CENTER);
 
   // greeting text 
-  textSize(50);
+  textSize(_fontSize);
   push();
   translate(width/2, greeting_posY);
   text(greet, 0, 0);
   pop();
 
   if (enterInput) {
-    var name = input.value();
+    input_name = input.value();
     input.remove();
 
-    // name
+    // input_name
     // textSize(50 + textMag);
     // textSize(50 + binNumMag);
-    textSize(50);
+    textSize(_fontSize + 20);
     push();
-    translate(width/2, greeting_posY + 300);
-    text(name, 0, 0);
+    translate(width/2, greeting_posY + 400);
+    text(input_name, 0, 0);
     pop();
 
     greeting_posY -= textVelY/2;
@@ -111,7 +121,7 @@ function draw() {
       // trigger recursive function
       if (!binPrinting) {
         binPrinting = true;
-        printBins();
+        countBins();
       }
 
     } else if (numbersPrinted) {
@@ -127,58 +137,65 @@ function draw() {
   }
 
   if (binPrinting) {
+    push();
+    translate(0, binsPosY);
+
+    var charWidth = _fontSize - 50;
     for (var i = 0; i < cnt; i++) {
-      var posX = (width - (fontWidth * binNum)) / 2; // console.log(posX);
+      var posX = (width - (charWidth * binNum)) / 2; // console.log(posX);
 
       // textSize(50 + binNumMag);
-      textSize(50);
-      text(binName[i], posX + i * fontWidth, 600);
+      textSize(charWidth);
+      fill(255, trans);
+      text(binName[i], posX + i * charWidth, 0);
 
       // bin number pointing line
       // stroke(113, 246, 79, 100); // green
       stroke(255, 100);
       if (!numbersPrinted) {
-        if (i == cnt - 1) line(charXPoses[charIdx], 150, posX + i * fontWidth, 550)
+        if (i == cnt - 1) line(charXPoses[charIdx], -230, posX + i * charWidth, -50)
       }
     }
 
+    
     for (var i = 0; i < cnt; i++) {
       // console.log(binName[i]);
       if (binName[i] == '0'){
         binNumMag = 0;
+
         // rect
         noStroke();
-        fill(0);
-        rect(posX + (i-0.5) * (fontWidth), 620, 30, 30);
+        fill(0, trans);
+        rect(posX + (i-0.5) * (charWidth), 20, charWidth, charWidth);
 
         // pulse
-        stroke(255, 200);
-        line(posX + (i-0.5) * (fontWidth), 700, posX + (i+0.5) * (fontWidth), 700);
+        stroke(255, trans);
+        line(posX + (i-0.5) * (charWidth), 100, posX + (i+0.5) * (charWidth), 100);
         if (binName[i-1] == '1') {
-          line(posX + (i-0.5) * (fontWidth), 700, posX + (i-0.5) * (fontWidth), 670);
+          line(posX + (i-0.5) * (charWidth), 100, posX + (i-0.5) * (charWidth), 70);
         }
 
         // punch hole
-        // noStroke();
-        ellipse(posX + i * fontWidth, 730, 20, 20);
+        noStroke();
+        ellipse(posX + i * charWidth, 130, charWidth*2/3, charWidth*2/3);
       } else if (binName[i] == '1'){
         binNumMag = 200;
 
         // rect
         noStroke();
-        fill(255);
-        rect(posX + (i-0.5) * (fontWidth), 620, 30, 30);
+        fill(255, trans);
+        rect(posX + (i-0.5) * (charWidth), 20, charWidth, charWidth);
 
         // pulse
-        stroke(255, 200);
-        line(posX + (i-0.5) * (fontWidth), 670, posX + (i+0.5) * (fontWidth), 670);
+        stroke(255, trans);
+        line(posX + (i-0.5) * (charWidth), 70, posX + (i+0.5) * (charWidth), 70);
         if (binName[i-1] == '0') {
-          line(posX + (i-0.5) * (fontWidth), 670, posX + (i-0.5) * (fontWidth), 700);
+          line(posX + (i-0.5) * (charWidth), 70, posX + (i-0.5) * (charWidth), 100);
         }
 
         // punch hole
         // noStroke();
-        // ellipse(posX + i * fontWidth, 730, 20, 20);
+        // ellipse(posX + i * charWidth, 130, 20, 20);
 
       } else if (binName[i] == ' ') {
         // console.log("except: " + binName[i]);
@@ -188,28 +205,40 @@ function draw() {
     if (numbersPrinted) {
       binNumMag = 0;
       if (!printOnPaper) {
-
-
-    console.log("sendData");
-    console.log(msg_date);
-    console.log(msg_all);
-    console.log(msg_all.length);
-
-        serial.write(msg_all); // make printer work!
+        // serial.write(msg_all); // make printer work!
         printOnPaper = true;
       }
 
       if (!sessionEnd) {
-        fill(255, 200);
-        text(announcePrinting, width/2, 800);
+        // blinkRate = 600 + ((Math.sin(millis())) * 50);
+        blinkRate = 800; 
+
+        var t = Math.round(millis() / blinkRate);
+        if (t % 2 == 0) {
+          noStroke();
+          fill(255, 0);
+          textSize(_fontSize);
+          text(announcePrinting, width/2, 300);
+          // trans = 0;
+
+        } else {
+          stroke(255);
+          fill(255, 200);
+          textSize(_fontSize);
+          text(announcePrinting, width/2, 300);
+          // trans = 255;
+        }
+
       } else {
         fill(255, 200);
-        text(announceSessionEnd, width/2, 800);
-        // setTimeout(reset, 3000);
+        textSize(_fontSize);
+        text(announceSessionEnd, width/2, 300); // thank you
+        setTimeout(reset, 3000);
       }
 
     }
 
+    pop();
   }
 
 
@@ -218,6 +247,11 @@ function draw() {
   // console.log("draw()");
 }
 
+
+function textBlink(_text, _interval, _posX, _posY, _num) {
+  text(_text, _posX, _posY);
+  setTimeout(textBlink, _interval);
+}
 
 function reset() {
 
@@ -237,20 +271,20 @@ function reset() {
   enterInput = false;
   binPrinting = false;
   numbersPrinted = false;
-  greeting_posY = 200;
+  greeting_posY = 150;
   textVelY = 20;
   textMag = 0;
 
 }
 
 
-function printBins() {
-  console.log("printBins()");
+function countBins() {
+  console.log("countBins()");
   cnt++;
   if (binName[cnt] == ' ') charIdx++;
 
   if (cnt < binNum) {
-    setTimeout(printBins, binPrintInterval);
+    setTimeout(countBins, binPrintInterval);
   } else {
     numbersPrinted = true; // it's going to print barcode image
     console.log("numbersPrinted: " + numbersPrinted);
@@ -278,22 +312,24 @@ function keyTyped() {
     binNum = binNum + (charLength - 1); // add num of space
     console.log("binNum: " + binNum);
 
-    charXPoses = [];
     // charXPoses
+    charXPoses = [];
+    var charWidth = _fontSize - 10; // need to be trim
+
     if (charLength == 1) {
       charXPoses[0] = width/2;
     } else if (charLength == 2) {
-      charXPoses[0] = width/2 - (fontWidth);
-      charXPoses[1] = width/2 + (fontWidth);
+      charXPoses[0] = width/2 - (charWidth);
+      charXPoses[1] = width/2 + (charWidth);
     } else if (charLength == 3) {
-      charXPoses[0] = width/2 - (fontWidth + fontWidth/2);
+      charXPoses[0] = width/2 - (charWidth + charWidth/2);
       charXPoses[1] = width/2;
-      charXPoses[2] = width/2 + (fontWidth + fontWidth/2);
+      charXPoses[2] = width/2 + (charWidth + charWidth/2);
     } else if (charLength == 4) {
-      charXPoses[0] = width/2 - (fontWidth * 2);
-      charXPoses[1] = width/2 - (fontWidth * 1);
-      charXPoses[2] = width/2 + (fontWidth * 1);
-      charXPoses[3] = width/2 + (fontWidth * 2);
+      charXPoses[0] = width/2 - (charWidth * 2);
+      charXPoses[1] = width/2 - (charWidth * 1);
+      charXPoses[2] = width/2 + (charWidth * 1);
+      charXPoses[3] = width/2 + (charWidth * 2);
     }
 
     binName = text2Binary(str);
