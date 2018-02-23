@@ -1,6 +1,6 @@
 var serial;
-// var portName = "/dev/cu.usbmodem1461";
-var portName = "/dev/cu.usbserial-A9005QwS";
+var portName = "/dev/cu.usbmodem1461";
+// var portName = "/dev/cu.usbserial-A9005QwS";
 var msg_date, msg_all;
 var inByte = null;
 
@@ -341,7 +341,7 @@ function keyTyped() {
 
     binName = text2Binary(str);
     // msg_all = msg_date + "*" + firstCharBin;
-    msg_all = msg_date + firstCharBin + '*';
+    msg_all = msg_date + binName + '*';
     console.log(binName);
     console.log(msg_all);
 
@@ -372,11 +372,15 @@ function analyzeText(string) {
 
 function text2Binary(string) {
   return string.split('').map(function (char) {
-    if (first){
-      firstCharBin = char.charCodeAt(0).toString(2);
-      first = false;
+    var charBin = char.charCodeAt(0).toString(2);
+    if (charBin.length < 16) {
+      var leadingZero = ""; 
+      for (var i = 0; i < (16 - l); i++) {
+        leadingZero = leadingZero + '0';
+      }
+      charBin = leadingZero + binStr;
     }
-      return char.charCodeAt(0).toString(2);
+    return charBin;
   }).join(' ');
 }
 

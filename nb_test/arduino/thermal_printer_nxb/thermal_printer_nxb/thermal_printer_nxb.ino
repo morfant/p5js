@@ -12,8 +12,25 @@
   ------------------------------------------------------------------------*/
 
 #include "Adafruit_Thermal.h"
+
+// image .h files
 //#include "nxc_qr_code.h"
 #include "nxc_qr_code_low.h"
+#include "Altair_8800.h"
+#include "Apple_1.h"
+#include "Apple_2.h"
+#include "HP_150.h"
+#include "HX_20.h"
+//#include "Magnavox.h"
+//#include "PC5150.h"
+//#include "Pong.h"
+//#include "Simon.h"
+//#include "en_mouse.h"
+#include "intel_4004.h"
+#include "logo.h"
+//#include "osborn_1.h"
+#include "kor_q.h"
+
 
 // Here's the new syntax when using SoftwareSerial (e.g. Arduino Uno) ----
 // If using hardware serial instead, comment out or remove these lines:
@@ -21,6 +38,7 @@
 #include "SoftwareSerial.h"
 #define TX_PIN 6 // Arduino transmit  YELLOW WIRE  labeled RX on printer
 #define RX_PIN 5 // Arduino receive   GREEN WIRE   labeled TX on printer
+#define CON_CHECK_TIME 10000 // 10 sec
 
 SoftwareSerial mySerial(RX_PIN, TX_PIN); // Declare SoftwareSerial obj first
 Adafruit_Thermal printer(&mySerial);     // Pass addr to printer constructor
@@ -33,11 +51,10 @@ Adafruit_Thermal printer(&mySerial);     // Pass addr to printer constructor
 
 // -----------------------------------------------------------------------
 
-const int ledPin = 13; // the pin that the LED is attached to
 int incomingByte; // a variable to read incoming serial data into
-char msg_date[11];
-char msg_binName[17];
-char buf[26]; // 10 + 16 (date, firstCharBin)
+char msg_date[11]; // 10 + null
+char msg_binName[65]; // 64 + null
+char buf[74]; // 10 + 64 (date, binName), binName has 64 digit max.
 
 boolean newFeed = false;
 int dataLength = 0;
@@ -51,7 +68,6 @@ void setup() {
   // wired up the same way (w/3-pin header into pins 5/6/7):
   pinMode(7, OUTPUT);
   digitalWrite(7, LOW);
-  pinMode(ledPin, OUTPUT);
 
 
   Serial.begin(19200);
@@ -150,52 +166,132 @@ void loop() {
 
   if (Serial) {
 
-    if (serialLen == 0 && (millis() - checkTime > 2000)) {
-      
+    if (serialLen == 0 && (millis() - checkTime > CON_CHECK_TIME)) {
+
       Serial.write("k"); // send 'k' to p5js to keep connection
       checkTime = millis();
-      
+
     } else {
 
       if (Serial.available() > 0) {
         //      Serial.println(serialLen);
 
         memset(buf, '0', sizeof(buf));
-        //      dataLength = Serial.readBytes(buf, 26);
-        dataLength = Serial.readBytesUntil('*', buf, 26);
+        //      dataLength = Serial.readBytes(buf, 74);
+        dataLength = Serial.readBytesUntil('*', buf, 74);
         //      Serial.println(dataLength);
 
         newFeed = true;
 
       } else {
-        if (newFeed == true && dataLength == 26) {
+        if (newFeed == true && dataLength == 74) {
 
           strncpy(msg_date, buf, 10); // 2018/02/19 : date
           msg_date[strlen(msg_date)] = '\0';
-          strncpy(msg_binName, buf + 10, 16); // 1100011101110100 : bin of first char
+          strncpy(msg_binName, buf + 10, 64); // 1100011101110100 x 4 (max)
           msg_binName[strlen(msg_binName)] = '\0'; // make last char as a NULL
 
-          printer.justify('C');
-          printer.setSize('M');
-          printer.println(F("NEXON COMPUTER MUSEUM"));
-          //        printer.println(dataLength);
-          printer.println(msg_date);
-          //        printer.println(msg_binName);
 
+
+          // logo
+          printer.justify('L');
+          printer.printBitmap(logo_width, logo_height, logo_data);
 
           // QR code
           printer.justify('R');
-          printer.setSize('S');
           printer.printBitmap(nxc_qr_code_low_width, nxc_qr_code_low_height, nxc_qr_code_low_data);
-//          printer.printBitmap(nxc_qr_code_width, nxc_qr_code_height, nxc_qr_code_data);
+
+          // Text
+          printer.justify('C');
+          printer.setSize('M');
+          printer.println(F("Museum Touch\n :Play Coding"));
+
+          // Date
+          printer.setSize('S');
+          printer.println(F("************************************"));
+          //        printer.println(dataLength);
+          printer.println(msg_date);
+          printer.println(F("************************************"));
+          //        printer.println(msg_binName);
 
 
-          // barcode
-          printer.setBarcodeHeight(60);
-          printer.printBarcode(msg_binName, CODE128); // can print 16 digits
+          // Device Image as random
+          int r = (int)random(0, 12);
+          printer.justify('C');
 
+          switch (r) {
+            case 0:
+              printer.printBitmap(Altair_8800_width, Altair_8800_height, Altair_8800_data);
+              break;
+
+            case 1:
+              printer.printBitmap(Apple_1_width, Apple_1_height, Apple_1_data);
+              break;
+
+            case 2:
+              printer.printBitmap(Apple_2_width, Apple_2_height, Apple_2_data);
+              break;
+
+            case 3:
+              printer.printBitmap(HP_150_width, HP_150_height, HP_150_data);
+              break;
+
+            case 4:
+              printer.printBitmap(HX_20_width, HX_20_height, HX_20_data);
+              break;
+
+            case 5:
+              //              printer.printBitmap(Magnavox_width, Magnavox_height, Magnavox_data);
+              break;
+
+            case 6:
+              //              printer.printBitmap(PC5150_width, PC5150_height, PC5150_data);
+              break;
+
+            case 7:
+              //              printer.printBitmap(Pong_width, Pong_height, Pong_data);
+              break;
+
+            case 8:
+              //              printer.printBitmap(Simon_width, Simon_height, Simon_data);
+              break;
+
+            case 9:
+              //              printer.printBitmap(en_mouse_width, en_mouse_height, en_mouse_data);
+              break;
+
+            case 10:
+              printer.printBitmap(intel_4004_width, intel_4004_height, intel_4004_data);
+              break;
+
+            case 11:
+              //              printer.printBitmap(osborn_1_width, osborn_1_height, osborn_1_data);
+              break;
+
+            default:
+              break;
+
+          }
+
+
+          printer.feed(3);
+
+
+          // bin name
+          printer.justify('C');
+          printer.setSize('M');
+          printer.println(F("************************************"));
+          printer.printBitmap(kor_q_width, kor_q_height, kor_q_data);
+          printer.println(F("************************************"));
+
+          printer.setBarcodeHeight(40);
+          //          printer.printBarcode(binNameChar[0], CODE128); // can print 16 digits
+          //          printer.printBarcode(binNameChar[1], CODE128); // can print 16 digits
+          //          printer.printBarcode(binNameChar[2], CODE128); // can print 16 digits
+          //          printer.printBarcode(binNameChar[3], CODE128); // can print 16 digits
 
           printer.feed(2);
+
 
 
           Serial.flush();
@@ -211,12 +307,5 @@ void loop() {
         }
       }
     }
-  }
-}
-
-
-void serialFlush() {
-  while (Serial.available() > 0) {
-    char t = Serial.read();
   }
 }
