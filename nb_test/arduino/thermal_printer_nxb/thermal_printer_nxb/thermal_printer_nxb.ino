@@ -12,7 +12,8 @@
   ------------------------------------------------------------------------*/
 
 #include "Adafruit_Thermal.h"
-#include "nxc_qr_code.h"
+//#include "nxc_qr_code.h"
+#include "nxc_qr_code_low.h"
 
 // Here's the new syntax when using SoftwareSerial (e.g. Arduino Uno) ----
 // If using hardware serial instead, comment out or remove these lines:
@@ -40,6 +41,8 @@ char buf[26]; // 10 + 16 (date, firstCharBin)
 
 boolean newFeed = false;
 int dataLength = 0;
+
+unsigned long checkTime = 0;
 
 void setup() {
 
@@ -143,59 +146,72 @@ void loop() {
 
   int serialLen = Serial.available();
 
+
+
   if (Serial) {
-    if (Serial.available() > 0) {
-      //      Serial.println(serialLen);
 
-      memset(buf, '0', sizeof(buf));
-      //      dataLength = Serial.readBytes(buf, 26);
-      dataLength = Serial.readBytesUntil('*', buf, 26);
-      //      Serial.println(dataLength);
-
-      newFeed = true;
-
+    if (serialLen == 0 && (millis() - checkTime > 2000)) {
+      
+      Serial.write("k"); // send 'k' to p5js to keep connection
+      checkTime = millis();
+      
     } else {
-      if (newFeed == true && dataLength == 26) {
 
-        strncpy(msg_date, buf, 10); // 2018/02/19 : date
-        msg_date[strlen(msg_date)] = '\0';
-        strncpy(msg_binName, buf + 10, 16); // 1100011101110100 : bin of first char
-        msg_binName[strlen(msg_binName)] = '\0'; // make last char as a NULL
+      if (Serial.available() > 0) {
+        //      Serial.println(serialLen);
 
-        printer.justify('C');
-        printer.setSize('M');
-        printer.println(F("NEXON COMPUTER MUSEUM"));
-        //        printer.println(dataLength);
-        printer.println(msg_date);
-        //        printer.println(msg_binName);
+        memset(buf, '0', sizeof(buf));
+        //      dataLength = Serial.readBytes(buf, 26);
+        dataLength = Serial.readBytesUntil('*', buf, 26);
+        //      Serial.println(dataLength);
 
+        newFeed = true;
 
-        // QR code
-        printer.justify('C');
-        printer.setSize('S');
-        printer.printBitmap(nxc_qr_code_width, nxc_qr_code_height, nxc_qr_code_data);
+      } else {
+        if (newFeed == true && dataLength == 26) {
 
-        // barcode
-        printer.setBarcodeHeight(60);
-        printer.printBarcode(msg_binName, CODE128); // can print 16 digits
+          strncpy(msg_date, buf, 10); // 2018/02/19 : date
+          msg_date[strlen(msg_date)] = '\0';
+          strncpy(msg_binName, buf + 10, 16); // 1100011101110100 : bin of first char
+          msg_binName[strlen(msg_binName)] = '\0'; // make last char as a NULL
 
-        printer.feed(2);
-
-
-        Serial.flush();
-        Serial.write("e"); // send 'e' to p5js to say session end.
-        printer.wake();       // MUST wake() before printing again, even if reset
-
-        // reset variable
-        dataLength = 0;
-        newFeed = false;
-        Serial.flush();
+          printer.justify('C');
+          printer.setSize('M');
+          printer.println(F("NEXON COMPUTER MUSEUM"));
+          //        printer.println(dataLength);
+          printer.println(msg_date);
+          //        printer.println(msg_binName);
 
 
+          // QR code
+          printer.justify('R');
+          printer.setSize('S');
+          printer.printBitmap(nxc_qr_code_low_width, nxc_qr_code_low_height, nxc_qr_code_low_data);
+//          printer.printBitmap(nxc_qr_code_width, nxc_qr_code_height, nxc_qr_code_data);
+
+
+          // barcode
+          printer.setBarcodeHeight(60);
+          printer.printBarcode(msg_binName, CODE128); // can print 16 digits
+
+
+          printer.feed(2);
+
+
+          Serial.flush();
+          Serial.write("e"); // send 'e' to p5js to say session end.
+          printer.wake();       // MUST wake() before printing again, even if reset
+
+          // reset variable
+          dataLength = 0;
+          newFeed = false;
+          Serial.flush();
+
+
+        }
       }
     }
   }
-
 }
 
 

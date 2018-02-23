@@ -6,6 +6,7 @@ var inByte = null;
 
 var printOnPaper = false;
 var sessionEnd = false;
+var connectionCheckTime = 2000; // ms
 
 var blinkRate = 100;
 var trans = 255;
@@ -67,7 +68,9 @@ function setup() {
     // parity: "none"
   });
   serial.on('data', serialEvent); // callback for when new data arrives
+  setInterval(keepConnection, connectionCheckTime);
 
+  
   // make space
   createElement("br");
   createElement("br");
@@ -204,8 +207,9 @@ function draw() {
 
     if (numbersPrinted) {
       binNumMag = 0;
+
       if (!printOnPaper) {
-        // serial.write(msg_all); // make printer work!
+        serial.write(msg_all); // make printer work!
         printOnPaper = true;
       }
 
@@ -347,7 +351,6 @@ function keyTyped() {
     console.log("sp");
     console.log(msg_date);
     console.log(msg_all);
-    // serial.write(msg_date);
     serial.write(msg_all); // make printer work!
 
     return false; // Prevent the key working as default function
@@ -383,7 +386,18 @@ function serialEvent() {
     if (inByte == 101) { // 'e' from Arduino
       console.log("read byte: " + inByte);
       sessionEnd = true;
+    } else if (inByte == 107) {
+      console.log("read byte: " + inByte);
     }
+  }
+}
+
+
+function keepConnection() {
+  // console.log(serial);
+  if (!enterInput) {
+    console.log("keepConnection()");
+    serial.write(' ');
   }
 }
 
