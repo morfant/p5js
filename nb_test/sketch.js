@@ -42,10 +42,13 @@ var textMag = 0;
 var binNumMag = 0;
 
 
+var d; // date object
+
+
 function setup() {
  
   // get date
-  var d = new Date();
+  d = new Date();
   msg_date = d.getFullYear() + '/'
             + ('0' + (d.getMonth()+1)).slice(-2) + '/'
             + ('0' + d.getDate()).slice(-2);
@@ -392,9 +395,22 @@ function serialEvent() {
   }
 }
 
+function getTimeStamp() {
+  var d = new Date();
+
+  var s =
+    (d.getHours()) + ':' +
+    (d.getMinutes()) + ':' +
+    (d.getSeconds());
+
+  return s;
+}
+
 
 function keepConnection() {
   // console.log(serial);
+  // console.log(d.now());
+  console.log(getTimeStamp());
   if (!enterInput) {
     console.log("keepConnection()");
     serial.write(' ');
