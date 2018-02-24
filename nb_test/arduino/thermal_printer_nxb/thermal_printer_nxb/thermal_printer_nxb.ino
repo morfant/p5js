@@ -15,19 +15,23 @@
 
 // image .h files
 //#include "nxc_qr_code.h"
-#include "nxc_qr_code_low.h"
+//#include "nxc_qr_code_low.h"
+//#include "logo.h"
+
+//#include "logo_qr.h"
+#include "lq.h"
 #include "Altair_8800.h"
 #include "Apple_1.h"
 #include "Apple_2.h"
 #include "HP_150.h"
-#include "HX_20.h"
+//#include "HX_20.h"
 //#include "Magnavox.h"
 //#include "PC5150.h"
 //#include "Pong.h"
 //#include "Simon.h"
 //#include "en_mouse.h"
-#include "intel_4004.h"
-#include "logo.h"
+//#include "intel_4004.h"
+
 //#include "osborn_1.h"
 #include "kor_q.h"
 
@@ -53,8 +57,8 @@ Adafruit_Thermal printer(&mySerial);     // Pass addr to printer constructor
 
 int incomingByte; // a variable to read incoming serial data into
 char msg_date[11]; // 10 + null
-char msg_binName[65]; // 64 + null
-char buf[74]; // 10 + 64 (date, binName), binName has 64 digit max.
+char msg_binName[67]; // 64 + null * 3(spaces)
+char buf[77]; // 10 + 67 (date, binName w spaces), binName has 64 digit max.
 
 boolean newFeed = false;
 int dataLength = 0;
@@ -77,6 +81,8 @@ void setup() {
   printer.begin();        // Init printer (same regardless of serial type)
 
 
+  // for random result
+  randomSeed(analogRead(0)); // use noise of analogRead(0)
 
   mySerial.flush();
   printer.flush();
@@ -168,8 +174,8 @@ void loop() {
 
     if (serialLen == 0 && (millis() - checkTime > CON_CHECK_TIME)) {
 
-      Serial.write("k"); // send 'k' to p5js to keep connection
-      checkTime = millis();
+      //      Serial.write("k"); // send 'k' to p5js to keep connection
+      //      checkTime = millis();
 
     } else {
 
@@ -177,47 +183,60 @@ void loop() {
         //      Serial.println(serialLen);
 
         memset(buf, '0', sizeof(buf));
-        //      dataLength = Serial.readBytes(buf, 74);
-        dataLength = Serial.readBytesUntil('*', buf, 74);
+        //      dataLength = Serial.readBytes(buf, 77);
+        dataLength = Serial.readBytesUntil('*', buf, 77);
         //      Serial.println(dataLength);
 
         newFeed = true;
 
       } else {
-        if (newFeed == true && dataLength == 74) {
+        if (newFeed == true && dataLength >= 26 && dataLength < 78) {
 
           strncpy(msg_date, buf, 10); // 2018/02/19 : date
           msg_date[strlen(msg_date)] = '\0';
-          strncpy(msg_binName, buf + 10, 64); // 1100011101110100 x 4 (max)
-          msg_binName[strlen(msg_binName)] = '\0'; // make last char as a NULL
 
+          int n = (dataLength - 10) / 16; // char num
+          //          printer.println(n);
+
+          char** binNameChar = new char*[n];
+          for (int i = 0; i < n; ++i) {
+            binNameChar[i] = new char[17];
+          }
+
+          for (int i = 0; i < n; i++) {
+            strncpy(binNameChar[i], buf + 10 + (i * 17), 16);
+            binNameChar[i][16] = '\0';
+          }
 
 
           // logo
-          printer.justify('L');
-          printer.printBitmap(logo_width, logo_height, logo_data);
+          printer.justify('C');
+          printer.printBitmap(lq_width, lq_height, lq_data);
 
           // QR code
-          printer.justify('R');
-          printer.printBitmap(nxc_qr_code_low_width, nxc_qr_code_low_height, nxc_qr_code_low_data);
+//          printer.justify('R');
+//          printer.printBitmap(nxc_qr_code_low_width, nxc_qr_code_low_height, nxc_qr_code_low_data);
+
 
           // Text
           printer.justify('C');
           printer.setSize('M');
-          printer.println(F("Museum Touch\n :Play Coding"));
+          printer.boldOn();
+          printer.println(F("Museum Touch\n : Play Coding\n")); // 'F' means that string will stay on Flash memory, rather than being copied to SRAM.;
+          printer.boldOff();
 
           // Date
           printer.setSize('S');
-          printer.println(F("************************************"));
-          //        printer.println(dataLength);
+          printer.println(F("************************")); // 24
           printer.println(msg_date);
-          printer.println(F("************************************"));
-          //        printer.println(msg_binName);
+          printer.println(F("************************"));
+
 
 
           // Device Image as random
-          int r = (int)random(0, 12);
+          int r = (int)random(0, 4);
           printer.justify('C');
+          printer.setSize('L');
 
           switch (r) {
             case 0:
@@ -237,11 +256,13 @@ void loop() {
               break;
 
             case 4:
-              printer.printBitmap(HX_20_width, HX_20_height, HX_20_data);
+//              printer.printBitmap(HX_20_width, HX_20_height, HX_20_data);
               break;
 
             case 5:
               //              printer.printBitmap(Magnavox_width, Magnavox_height, Magnavox_data);
+//              printer.printBitmap(intel_4004_width, intel_4004_height, intel_4004_data);
+
               break;
 
             case 6:
@@ -261,7 +282,7 @@ void loop() {
               break;
 
             case 10:
-              printer.printBitmap(intel_4004_width, intel_4004_height, intel_4004_data);
+//              printer.printBitmap(intel_4004_width, intel_4004_height, intel_4004_data);
               break;
 
             case 11:
@@ -279,23 +300,34 @@ void loop() {
 
           // bin name
           printer.justify('C');
-          printer.setSize('M');
-          printer.println(F("************************************"));
+          printer.setSize('S');
+          printer.println(F("********************************")); // 32
           printer.printBitmap(kor_q_width, kor_q_height, kor_q_data);
-          printer.println(F("************************************"));
+          printer.println(F("********************************"));
 
+          printer.setSize('S');
           printer.setBarcodeHeight(40);
-          //          printer.printBarcode(binNameChar[0], CODE128); // can print 16 digits
-          //          printer.printBarcode(binNameChar[1], CODE128); // can print 16 digits
-          //          printer.printBarcode(binNameChar[2], CODE128); // can print 16 digits
-          //          printer.printBarcode(binNameChar[3], CODE128); // can print 16 digits
-
-          printer.feed(2);
+          for (int i = 0; i < n; ++i) {
+            printer.printBarcode(binNameChar[i], CODE128); // can print 16 digits
+            //            printer.println(binNameChar[i]);
+          }
 
 
+          // ending line spaces
+          printer.feed(3);
+
+
+          // delete 2D char array
+          //Free each sub-array
+          for (int i = 0; i < n; ++i) {
+            delete[] binNameChar[i];
+          }
+
+          //Free the array of pointers
+          delete[] binNameChar;
 
           Serial.flush();
-          Serial.write("e"); // send 'e' to p5js to say session end.
+          Serial.write('c'); // send 'c' to p5js to say close session.
           printer.wake();       // MUST wake() before printing again, even if reset
 
           // reset variable
@@ -303,6 +335,7 @@ void loop() {
           newFeed = false;
           Serial.flush();
 
+        } else {
 
         }
       }

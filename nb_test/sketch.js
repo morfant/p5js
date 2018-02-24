@@ -1,5 +1,5 @@
 var serial;
-var portName = "/dev/cu.usbmodem1461";
+var portName = "/dev/cu.usbmodem1461"; // UNO
 // var portName = "/dev/cu.usbserial-A9005QwS";
 var msg_date, msg_all;
 var inByte = null;
@@ -59,9 +59,10 @@ function setup() {
   var cnv = createCanvas(windowWidth, windowHeight);
   cnv.style('display', 'block');
 
+  /*
   // serial
   serial = new p5.SerialPort();
-  console.log(serial.list());
+  // console.log(serial.list());
   // serial.open(portName);
   serial.open(portName, {
     baudRate: 19200, // this is necessary for solving bizzare serial data sending problem
@@ -71,7 +72,8 @@ function setup() {
     // parity: "none"
   });
   serial.on('data', serialEvent); // callback for when new data arrives
-  setInterval(keepConnection, connectionCheckTime);
+  // setInterval(keepConnection, connectionCheckTime);
+  */
 
   
   // make space
@@ -104,6 +106,8 @@ function draw() {
   pop();
 
   if (enterInput) {
+
+
     input_name = input.value();
     input.remove();
 
@@ -298,63 +302,85 @@ function countBins() {
   }
 }
 
+
+function serialOpen() {
+  serial = new p5.SerialPort();
+  serial.open(portName, {
+    baudRate: 19200, // this is necessary for solving bizzare serial data sending problem
+    // dataBits: 8,
+    // hupcl: false,
+    // stopBits: 1,
+    // parity: "none"
+  });
+  serial.on('connected', callback_serverConnected);
+  serial.on('open', callback_serialOpen);
+  serial.on('error', callback_serialError);
+  serial.on('data', callback_serialEvent);
+
+}
+
 function keyTyped() {
 
-  if (keyCode === ENTER) {
+  if (keyCode === ENTER && enterInput == false) {
     console.log("enter input!");
-    enterInput = true;
 
-    // reset variables
-    binNum = 0;
-    binName = null;
-    cnt = 0;
-    charIdx = 0;
-    first = true;
-
-
+    // check input length
     var str = input.value();
     charLength = str.length;
 
-    analyzeText(str);
-    binNum = binNum + (charLength - 1); // add num of space
-    console.log("binNum: " + binNum);
+    if (charLength > 0) {
+      enterInput = true;
 
-    // charXPoses
-    charXPoses = [];
-    var charWidth = _fontSize - 10; // need to be trim
+      // reset variables
+      binNum = 0;
+      binName = null;
+      cnt = 0;
+      charIdx = 0;
 
-    if (charLength == 1) {
-      charXPoses[0] = width/2;
-    } else if (charLength == 2) {
-      charXPoses[0] = width/2 - (charWidth);
-      charXPoses[1] = width/2 + (charWidth);
-    } else if (charLength == 3) {
-      charXPoses[0] = width/2 - (charWidth + charWidth/2);
-      charXPoses[1] = width/2;
-      charXPoses[2] = width/2 + (charWidth + charWidth/2);
-    } else if (charLength == 4) {
-      charXPoses[0] = width/2 - (charWidth * 2);
-      charXPoses[1] = width/2 - (charWidth * 1);
-      charXPoses[2] = width/2 + (charWidth * 1);
-      charXPoses[3] = width/2 + (charWidth * 2);
+      serialOpen();
+      
+      // text handle
+      // analyzeText(str);
+      binName = text2Binary(str);
+      console.log(binName);
+      binNum = binNum + (charLength - 1); // add num of space
+      console.log("binNum: " + binNum);
+
+      // charXPoses
+      charXPoses = [];
+      var charWidth = _fontSize - 10; // need to be trim
+
+      if (charLength == 1) {
+        charXPoses[0] = width/2;
+      } else if (charLength == 2) {
+        charXPoses[0] = width/2 - (charWidth);
+        charXPoses[1] = width/2 + (charWidth);
+      } else if (charLength == 3) {
+        charXPoses[0] = width/2 - (charWidth + charWidth/2);
+        charXPoses[1] = width/2;
+        charXPoses[2] = width/2 + (charWidth + charWidth/2);
+      } else if (charLength == 4) {
+        charXPoses[0] = width/2 - (charWidth * 2);
+        charXPoses[1] = width/2 - (charWidth * 1);
+        charXPoses[2] = width/2 + (charWidth * 1);
+        charXPoses[3] = width/2 + (charWidth * 2);
+      }
+
+      // msg_all = msg_date + "*" + firstCharBin;
+      msg_all = msg_date + binName + '*';
+      console.log(msg_all);
+
+      console.log("binName: " + binName);
+      // console.log(binName[binNum-1]);
+
+      return false;
     }
 
-    binName = text2Binary(str);
-    // msg_all = msg_date + "*" + firstCharBin;
-    msg_all = msg_date + binName + '*';
-    console.log(binName);
-    console.log(msg_all);
-
-
-    console.log("binName: " + binName);
-    console.log("firstCharBin: " + firstCharBin);
-    // console.log(binName[binNum-1]);
-
-  } else if (keyCode === 32) {
+  } else if (keyCode === 32) { // space key
     console.log("sp");
     console.log(msg_date);
     console.log(msg_all);
-    serial.write(msg_all); // make printer work!
+    // serial.write(msg_all); // make printer work!
 
     return false; // Prevent the key working as default function
 
@@ -373,31 +399,55 @@ function analyzeText(string) {
 function text2Binary(string) {
   return string.split('').map(function (char) {
     var charBin = char.charCodeAt(0).toString(2);
-    if (charBin.length < 16) {
+    var l = charBin.length;
+    if (l < 16) {
       var leadingZero = ""; 
       for (var i = 0; i < (16 - l); i++) {
         leadingZero = leadingZero + '0';
       }
-      charBin = leadingZero + binStr;
+      charBin = leadingZero + charBin;
     }
+
+    var b = charBin.length;
+    binNum += b;
+
     return charBin;
   }).join(' ');
 }
 
-// serial
-function serialEvent() {
+
+// serial callback
+function callback_serverConnected() {
+  console.log("server connected");
+}
+
+function callback_serialError() {
+  console.log("serial ERROR!!");
+}
+
+function callback_serialOpen() {
+  console.log("serial OPEN!!");
+}
+
+function callback_serialEvent() {
   // read a byte from the serial port:
   inByte = serial.read();
-
   if (inByte != 10 && inByte != 32 && inByte != 13 && inByte != 0 && inByte != 224) {
     if (inByte == 101) { // 'e' from Arduino
-      console.log("read byte: " + inByte);
+      console.log("read byte: " + inByte.toString());
+      console.log("serial data length has error...");
+    } else if (inByte == 99) { // 'c' from arduino
+      console.log("read byte: " + inByte.toString());
+      console.log("serial close...");
+      serial.close();
       sessionEnd = true;
     } else if (inByte == 107) {
-      console.log("read byte: " + inByte);
+      console.log("read byte: " + inByte.toString());
     }
   }
 }
+
+
 
 function getTimeStamp() {
   var d = new Date();
