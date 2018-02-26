@@ -20,10 +20,17 @@
 
 //#include "logo_qr.h"
 #include "lq.h"
-#include "Altair_8800.h"
-#include "Apple_1.h"
-#include "Apple_2.h"
-#include "HP_150.h"
+#include "kor_q.h"
+#include "apple1.h"
+#include "pong.h"
+#include "emouse.h"
+#include "magnavox.h"
+
+
+//#include "Altair_8800.h"
+//#include "Apple_1.h"
+//#include "Apple_2.h"
+//#include "HP_150.h"
 //#include "HX_20.h"
 //#include "Magnavox.h"
 //#include "PC5150.h"
@@ -33,7 +40,7 @@
 //#include "intel_4004.h"
 
 //#include "osborn_1.h"
-#include "kor_q.h"
+
 
 
 // Here's the new syntax when using SoftwareSerial (e.g. Arduino Uno) ----
@@ -211,25 +218,25 @@ void loop() {
 
           // logo
           printer.justify('C');
-          printer.printBitmap(lq_width, lq_height, lq_data);
+          //          printer.printBitmap(lq_width, lq_height, lq_data);
 
           // QR code
-//          printer.justify('R');
-//          printer.printBitmap(nxc_qr_code_low_width, nxc_qr_code_low_height, nxc_qr_code_low_data);
+          //          printer.justify('R');
+          //          printer.printBitmap(nxc_qr_code_low_width, nxc_qr_code_low_height, nxc_qr_code_low_data);
 
 
           // Text
           printer.justify('C');
           printer.setSize('M');
           printer.boldOn();
-          printer.println(F("Museum Touch\n : Play Coding\n")); // 'F' means that string will stay on Flash memory, rather than being copied to SRAM.;
+          //          printer.println(F("Museum Touch\n : Play Coding\n")); // 'F' means that string will stay on Flash memory, rather than being copied to SRAM.;
           printer.boldOff();
 
           // Date
           printer.setSize('S');
-          printer.println(F("************************")); // 24
-          printer.println(msg_date);
-          printer.println(F("************************"));
+          //          printer.println(F("************************")); // 24
+          //          printer.println(msg_date);
+          //          printer.println(F("************************"));
 
 
 
@@ -237,31 +244,44 @@ void loop() {
           int r = (int)random(0, 4);
           printer.justify('C');
           printer.setSize('L');
+          printer.println(r);
 
           switch (r) {
             case 0:
-              printer.printBitmap(Altair_8800_width, Altair_8800_height, Altair_8800_data);
+              //              printer.printBitmap(Altair_8800_width, Altair_8800_height, Altair_8800_data);
+//              printer.printBitmap(apple1_width, apple1_height, apple1_data);
+//                            printer.printBitmap(emouse_width, emouse_height, emouse_data);
+
               break;
 
             case 1:
-              printer.printBitmap(Apple_1_width, Apple_1_height, Apple_1_data);
+              //              printer.printBitmap(pong_width, pong_height, pong_data);
+              //              printer.printBitmap(emouse_width, emouse_height, emouse_data);
+              printer.printBitmap(apple1_width, apple1_height, apple1_data);
               break;
 
             case 2:
-              printer.printBitmap(Apple_2_width, Apple_2_height, Apple_2_data);
+//              printer.printBitmap(emouse_width, emouse_height, emouse_data);
+//              printer.printBitmap(apple1_width, apple1_height, apple1_data);
+
+              //              printer.printBitmap(Apple_2_width, Apple_2_height, Apple_2_data);
               break;
 
             case 3:
-              printer.printBitmap(HP_150_width, HP_150_height, HP_150_data);
+//              printer.printBitmap(emouse_width, emouse_height, emouse_data);
+//              printer.printBitmap(apple1_width, apple1_height, apple1_data);
+
+              //              printer.printBitmap(magnavox_width, magnavox_height, magnavox_data);
+              //              printer.printBitmap(HP_150_width, HP_150_height, HP_150_data);
               break;
 
             case 4:
-//              printer.printBitmap(HX_20_width, HX_20_height, HX_20_data);
+              //              printer.printBitmap(HX_20_width, HX_20_height, HX_20_data);
               break;
 
             case 5:
               //              printer.printBitmap(Magnavox_width, Magnavox_height, Magnavox_data);
-//              printer.printBitmap(intel_4004_width, intel_4004_height, intel_4004_data);
+              //              printer.printBitmap(intel_4004_width, intel_4004_height, intel_4004_data);
 
               break;
 
@@ -282,7 +302,7 @@ void loop() {
               break;
 
             case 10:
-//              printer.printBitmap(intel_4004_width, intel_4004_height, intel_4004_data);
+              //              printer.printBitmap(intel_4004_width, intel_4004_height, intel_4004_data);
               break;
 
             case 11:
@@ -300,15 +320,15 @@ void loop() {
 
           // bin name
           printer.justify('C');
-          printer.setSize('S');
-          printer.println(F("********************************")); // 32
-          printer.printBitmap(kor_q_width, kor_q_height, kor_q_data);
-          printer.println(F("********************************"));
+          //          printer.setSize('S');
+          //          printer.println(F("********************************")); // 32
+          //          printer.printBitmap(kor_q_width, kor_q_height, kor_q_data);
+          //          printer.println(F("********************************"));
 
           printer.setSize('S');
           printer.setBarcodeHeight(40);
           for (int i = 0; i < n; ++i) {
-            printer.printBarcode(binNameChar[i], CODE128); // can print 16 digits
+            //            printer.printBarcode(binNameChar[i], CODE128); // can print 16 digits
             //            printer.println(binNameChar[i]);
           }
 

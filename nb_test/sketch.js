@@ -1,9 +1,10 @@
 var serial;
-var portName = "/dev/cu.usbmodem1461"; // UNO
-// var portName = "/dev/cu.usbserial-A9005QwS";
+// var portName = "/dev/cu.usbmodem1461"; // UNO
+var portName = "/dev/cu.usbmodem14641"; // UNO // var portName = "/dev/cu.usbserial-A9005QwS";
 var msg_date, msg_all;
 var inByte = null;
 
+var _displayLoadingBar = false;
 var printOnPaper = false;
 var sessionEnd = false;
 var connectionCheckTime = 2000; // ms
@@ -12,6 +13,11 @@ var blinkRate = 100;
 var trans = 255;
 
 var input_name = "";
+var loadingBarRate = 300; // ms
+
+var greetMovLimitY = 300; 
+var loadingBar = "";
+var loadingBarCnt = 0;
 
 var playing = false;
 var input, button, greeting;
@@ -25,9 +31,10 @@ var binText;
 var inputPosX = 450;
 var inputPosY = 500;
 var _fontSize = 80;
-var announcePrinting = "출력중입니다…";
 var announceSessionEnd = "감사합니다";
-var greet = "넥슨컴퓨터박물관에 오신 것을 환영합니다.\n\n이름을 입력하세요.";
+var greet = "당신의 이름을 입력해 주세요.\nEnter your name.";
+var inputInfo = "한글/영문 최대 4글자까지 입력 가능합니다.\nMaximum four letters in Korean/English";
+
 var greeting_posY = 150;
 var binsPosY = 500;
 var enterInput = false;
@@ -59,23 +66,6 @@ function setup() {
   var cnv = createCanvas(windowWidth, windowHeight);
   cnv.style('display', 'block');
 
-  /*
-  // serial
-  serial = new p5.SerialPort();
-  // console.log(serial.list());
-  // serial.open(portName);
-  serial.open(portName, {
-    baudRate: 19200, // this is necessary for solving bizzare serial data sending problem
-    // dataBits: 8,
-    // hupcl: false,
-    // stopBits: 1,
-    // parity: "none"
-  });
-  serial.on('data', serialEvent); // callback for when new data arrives
-  // setInterval(keepConnection, connectionCheckTime);
-  */
-
-  
   // make space
   createElement("br");
   createElement("br");
@@ -83,19 +73,20 @@ function setup() {
 
   // Text Input 
   input = createInput();
+  textAlign(CENTER);
+  input.position((width - input.elt.clientWidth)/2 - input.elt.clientWidth + 10, 600); // trim
   input.attribute('maxlength', '4');
   input.class("text-field"); // see data/style.css
   input.elt.focus();
+
 }
 
 function draw() {
   background(89, 89, 89);
-  // background(21, 21, 21);
 
   // greeting text
   fill(250);
   noStroke();
-  // fill(113, 246, 79);
   textAlign(CENTER);
 
   // greeting text 
@@ -103,29 +94,28 @@ function draw() {
   push();
   translate(width/2, greeting_posY);
   text(greet, 0, 0);
+  textSize(_fontSize*5/10);
+  translate(0, 250);
+  text(inputInfo, 0, 0);
   pop();
 
+
   if (enterInput) {
-
-
     input_name = input.value();
     input.remove();
 
     // input_name
-    // textSize(50 + textMag);
-    // textSize(50 + binNumMag);
     textSize(_fontSize + 20);
     push();
-    translate(width/2, greeting_posY + 400);
+    translate(width/2, greeting_posY + 530); // trim
     text(input_name, 0, 0);
     pop();
 
     greeting_posY -= textVelY/2;
-    if (textMag < 50) textMag += 5;
 
     // phase of animation
-    if (greeting_posY < -150 && numbersPrinted == false) {
-      greet = "";
+    if (greeting_posY < -greetMovLimitY && numbersPrinted == false) { // moving toward Y is finished
+      // greet = "";
       textVelY = 0; // velocity Y is zero = will not move anymore
 
       // trigger recursive function
@@ -133,28 +123,19 @@ function draw() {
         binPrinting = true;
         countBins();
       }
-
-    } else if (numbersPrinted) {
-      if (greeting_posY < 150) {
-        // textVelY = -10;
-        // textMag += 10;
-      } else {
-        textVelY = 0;
-      }
-
-    }
-
+    } 
   }
 
+  // print bin numbers
   if (binPrinting) {
     push();
     translate(0, binsPosY);
-
     var charWidth = _fontSize - 50;
-    for (var i = 0; i < cnt; i++) {
-      var posX = (width - (charWidth * binNum)) / 2; // console.log(posX);
 
-      // textSize(50 + binNumMag);
+    // bin number text
+    for (var i = 0; i < cnt; i++) {
+      var posX = (width - (charWidth * binNum)) / 2 + 15; // console.log(posX); // trim
+
       textSize(charWidth);
       fill(255, trans);
       text(binName[i], posX + i * charWidth, 0);
@@ -165,11 +146,8 @@ function draw() {
       if (!numbersPrinted) {
         if (i == cnt - 1) line(charXPoses[charIdx], -230, posX + i * charWidth, -50)
       }
-    }
 
-    
-    for (var i = 0; i < cnt; i++) {
-      // console.log(binName[i]);
+      // rect, pulse, puhch hole
       if (binName[i] == '0'){
         binNumMag = 0;
 
@@ -188,6 +166,7 @@ function draw() {
         // punch hole
         noStroke();
         ellipse(posX + i * charWidth, 130, charWidth*2/3, charWidth*2/3);
+
       } else if (binName[i] == '1'){
         binNumMag = 200;
 
@@ -204,41 +183,48 @@ function draw() {
         }
 
         // punch hole
-        // noStroke();
-        // ellipse(posX + i * charWidth, 130, 20, 20);
+        noStroke();
+        ellipse(posX + i * charWidth, 130, 20, 20);
 
       } else if (binName[i] == ' ') {
         // console.log("except: " + binName[i]);
       }
     }
 
+    // bin numbers and rect, pulse, puhch hole are printed.(finished)
     if (numbersPrinted) {
-      binNumMag = 0;
-
       if (!printOnPaper) {
-        serial.write(msg_all); // make printer work!
+        // serial.write(msg_all); // make printer work!
         printOnPaper = true;
+        setTimeout(displayLoadingBar, 2000);
       }
 
+      // lodingBar
       if (!sessionEnd) {
-        // blinkRate = 600 + ((Math.sin(millis())) * 50);
-        blinkRate = 800; 
-
-        var t = Math.round(millis() / blinkRate);
-        if (t % 2 == 0) {
-          noStroke();
-          fill(255, 0);
-          textSize(_fontSize);
-          text(announcePrinting, width/2, 300);
-          // trans = 0;
-
-        } else {
-          stroke(255);
-          fill(255, 200);
-          textSize(_fontSize);
-          text(announcePrinting, width/2, 300);
-          // trans = 255;
+        if (_displayLoadingBar == true) {
+          countLoading();
+          _displayLoadingBar = false;
         }
+
+        // blinkRate = 600 + ((Math.sin(millis())) * 50);
+        // blinkRate = 2000; 
+
+        // var t = Math.round(millis() / blinkRate);
+        // if (t % 2 == 0) {
+        fill(255, 200);
+        textSize(_fontSize);
+        textAlign(LEFT);
+        loadingBar = "[";
+
+        if (loadingBarCnt > 0) {
+          // noStroke();
+         for (var i = 0; i < loadingBarCnt; i++){
+            loadingBar += "=";
+          }
+          loadingBar += ">";
+        }
+        text(loadingBar, width/2 - 250, 300);
+        text(']', width/2 + 250, 300);
 
       } else {
         fill(255, 200);
@@ -251,33 +237,26 @@ function draw() {
 
     pop();
   }
-
-
-  // console.log(binName);
-  // binText.html(binName);
-  // console.log("draw()");
 }
 
 
-function textBlink(_text, _interval, _posX, _posY, _num) {
-  text(_text, _posX, _posY);
-  setTimeout(textBlink, _interval);
+function displayLoadingBar() {
+  _displayLoadingBar = true;
 }
 
 function reset() {
 
   printOnPaper = false;
   sessionEnd = false;
-  greet = "넥슨컴퓨터박물관에 오신 것을 환영합니다.\n\n이름을 입력하세요."
+  // greet = "넥슨컴퓨터박물관에 오신 것을 환영합니다.\n\n이름을 입력하세요."
 
   // recreate Text Input 
-  // console.log(select('.text-field'));
-  if (select('.text-field') == null) {
-    input = createInput();
-    input.attribute('maxlength', '4');
-    input.class("text-field"); // see data/style.css
-    input.elt.focus();
-  }
+  input = createInput();
+  textAlign(CENTER);
+  input.position((width - input.elt.clientWidth)/2 - input.elt.clientWidth + 10, 600); // trim
+  input.attribute('maxlength', '4');
+  input.class("text-field"); // see data/style.css
+  input.elt.focus();
 
   enterInput = false;
   binPrinting = false;
@@ -285,6 +264,8 @@ function reset() {
   greeting_posY = 150;
   textVelY = 20;
   textMag = 0;
+  loadingBarCnt = 0;
+  _displayLoadingBar = false;
 
 }
 
@@ -302,8 +283,23 @@ function countBins() {
   }
 }
 
+function countLoading() {
+  loadingBarCnt++;
+  loadingBarCnt = loadingBarCnt%11;
+
+  if (loadingBarCnt < 20) {
+    setTimeout(countLoading, loadingBarRate);
+  } else {
+    loadingBar = "";
+  }
+}
+
+
 
 function serialOpen() {
+  console.log("serialOpen()");
+  console.log(serial);
+  if (serial != undefined) serial.close();
   serial = new p5.SerialPort();
   serial.open(portName, {
     baudRate: 19200, // this is necessary for solving bizzare serial data sending problem
@@ -316,6 +312,7 @@ function serialOpen() {
   serial.on('open', callback_serialOpen);
   serial.on('error', callback_serialError);
   serial.on('data', callback_serialEvent);
+  serial.on('list', callback_gotList);
 
 }
 
@@ -417,17 +414,27 @@ function text2Binary(string) {
 
 
 // serial callback
-function callback_serverConnected() {
+function callback_serverConnected(msg) {
   console.log("server connected");
+  console.log(msg);
 }
 
-function callback_serialError() {
+function callback_serialError(err) {
   console.log("serial ERROR!!");
+  console.log(err);
+
 }
 
-function callback_serialOpen() {
+function callback_serialOpen(m) {
   console.log("serial OPEN!!");
+  console.log(m);
 }
+
+function callback_gotList(l) {
+  console.log("serial list!!");
+  console.log(l);
+}
+
 
 function callback_serialEvent() {
   // read a byte from the serial port:
@@ -448,29 +455,6 @@ function callback_serialEvent() {
 }
 
 
-
-function getTimeStamp() {
-  var d = new Date();
-
-  var s =
-    (d.getHours()) + ':' +
-    (d.getMinutes()) + ':' +
-    (d.getSeconds());
-
-  return s;
-}
-
-
-function keepConnection() {
-  // console.log(serial);
-  // console.log(d.now());
-  console.log(getTimeStamp());
-  if (!enterInput) {
-    console.log("keepConnection()");
-    serial.write(' ');
-  }
-}
-
 // keyPressed
 function keyPressed() {
   if (keyCode === 33) { // 'page up' key
@@ -490,7 +474,3 @@ function keyPressed() {
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
 }
-
-function mousePressed() {
-}
-
