@@ -18,6 +18,7 @@ var loadingBarRate = 300; // ms
 var greetMovLimitY = 300; 
 var loadingBar = "";
 var loadingBarCnt = 0;
+var loadingBarNum = 15;
 
 var playing = false;
 var input, button, greeting;
@@ -183,8 +184,8 @@ function draw() {
         }
 
         // punch hole
-        noStroke();
-        ellipse(posX + i * charWidth, 130, 20, 20);
+        // noStroke();
+        // ellipse(posX + i * charWidth, 130, 20, 20);
 
       } else if (binName[i] == ' ') {
         // console.log("except: " + binName[i]);
@@ -196,35 +197,37 @@ function draw() {
       if (!printOnPaper) {
         // serial.write(msg_all); // make printer work!
         printOnPaper = true;
+        console.log("run displayLoadingBar()");
         setTimeout(displayLoadingBar, 2000);
       }
 
       // lodingBar
       if (!sessionEnd) {
         if (_displayLoadingBar == true) {
+          console.log("mcc");
           countLoading();
           _displayLoadingBar = false;
         }
 
         // blinkRate = 600 + ((Math.sin(millis())) * 50);
         // blinkRate = 2000; 
-
         // var t = Math.round(millis() / blinkRate);
-        // if (t % 2 == 0) {
+
         fill(255, 200);
         textSize(_fontSize);
         textAlign(LEFT);
-        loadingBar = "[";
+        // loadingBar = "[";
+        loadingBar = "";
 
         if (loadingBarCnt > 0) {
           // noStroke();
          for (var i = 0; i < loadingBarCnt; i++){
-            loadingBar += "=";
+            loadingBar += "+";
           }
-          loadingBar += ">";
+          // loadingBar += ">";
         }
-        text(loadingBar, width/2 - 250, 300);
-        text(']', width/2 + 250, 300);
+        text(loadingBar, width/2 - 350, 300);
+        // text(']', width/2 + 250, 300);
 
       } else {
         fill(255, 200);
@@ -247,7 +250,7 @@ function displayLoadingBar() {
 function reset() {
 
   printOnPaper = false;
-  sessionEnd = false;
+  sessionEnd = true;
   // greet = "넥슨컴퓨터박물관에 오신 것을 환영합니다.\n\n이름을 입력하세요."
 
   // recreate Text Input 
@@ -266,7 +269,6 @@ function reset() {
   textMag = 0;
   loadingBarCnt = 0;
   _displayLoadingBar = false;
-
 }
 
 
@@ -284,13 +286,21 @@ function countBins() {
 }
 
 function countLoading() {
+  console.log("cl");
   loadingBarCnt++;
-  loadingBarCnt = loadingBarCnt%11;
 
-  if (loadingBarCnt < 20) {
-    setTimeout(countLoading, loadingBarRate);
+  if (!sessionEnd){
+    if (loadingBarCnt <= loadingBarNum) {
+      setTimeout(countLoading, loadingBarRate);
+    } else {
+      console.log("c1");
+      loadingBarCnt = 0;
+      loadingBar = "";
+      setTimeout(countLoading, loadingBarRate);
+    }
   } else {
-    loadingBar = "";
+      console.log("cend");
+
   }
 }
 
@@ -325,8 +335,12 @@ function keyTyped() {
     var str = input.value();
     charLength = str.length;
 
+    //Enter reset
     if (charLength > 0) {
+      sessionEnd = false;
       enterInput = true;
+      loadingBar = "";
+      loadingBarCnt = 0;
 
       // reset variables
       binNum = 0;
