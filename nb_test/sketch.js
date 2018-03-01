@@ -1,4 +1,7 @@
-var serial;
+
+var SERIAL_OUT = true;
+
+var serial = null;
 // var portName = "/dev/cu.usbmodem1461"; // UNO
 var portName = "/dev/cu.usbmodem14641"; // UNO // var portName = "/dev/cu.usbserial-A9005QwS";
 var msg_date, msg_all;
@@ -33,7 +36,7 @@ var inputPosX = 450;
 var inputPosY = 500;
 var _fontSize = 80;
 var announceSessionEnd = "감사합니다";
-var greet = "당신의 이름을 입력해 주세요.\nEnter your name.";
+var greet = "이름을 입력해 주세요.\nEnter your name.";
 var inputInfo = "한글/영문 최대 4글자까지 입력 가능합니다.\nMaximum four letters in Korean/English";
 
 var greeting_posY = 150;
@@ -195,10 +198,10 @@ function draw() {
     // bin numbers and rect, pulse, puhch hole are printed.(finished)
     if (numbersPrinted) {
       if (!printOnPaper) {
-        // serial.write(msg_all); // make printer work!
+        if (SERIAL_OUT) serial.write(msg_all); // make printer work!
         printOnPaper = true;
         console.log("run displayLoadingBar()");
-        setTimeout(displayLoadingBar, 2000);
+        setTimeout(displayLoadingBar, 200);
       }
 
       // lodingBar
@@ -222,7 +225,7 @@ function draw() {
         if (loadingBarCnt > 0) {
           // noStroke();
          for (var i = 0; i < loadingBarCnt; i++){
-            loadingBar += "+";
+            loadingBar += ">"; // loading char
           }
           // loadingBar += ">";
         }
@@ -269,6 +272,8 @@ function reset() {
   textMag = 0;
   loadingBarCnt = 0;
   _displayLoadingBar = false;
+
+  setTimeout(serialClose, 500);
 }
 
 
@@ -310,7 +315,7 @@ function serialOpen() {
   console.log("serialOpen()");
   console.log(serial);
   if (serial != undefined) serial.close();
-  serial = new p5.SerialPort();
+  if (serial == null) serial = new p5.SerialPort();
   serial.open(portName, {
     baudRate: 19200, // this is necessary for solving bizzare serial data sending problem
     // dataBits: 8,
@@ -323,6 +328,13 @@ function serialOpen() {
   serial.on('error', callback_serialError);
   serial.on('data', callback_serialEvent);
   serial.on('list', callback_gotList);
+  serial.on('close', callback_serialClose);
+
+}
+
+function serialClose() {
+  console.log("serialClose()");
+  if (serial != undefined) serial.close();
 
 }
 
@@ -433,6 +445,11 @@ function callback_serverConnected(msg) {
   console.log(msg);
 }
 
+function callback_serialClose(c) {
+  console.log("serial CLOSE!!");
+  console.log(c);
+
+}
 function callback_serialError(err) {
   console.log("serial ERROR!!");
   console.log(err);
