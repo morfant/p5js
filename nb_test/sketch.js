@@ -1,6 +1,7 @@
 
 var SERIAL_OUT = true;
 
+var resetDone = false;
 var serial = null;
 // var portName = "/dev/cu.usbmodem1461"; // UNO
 var portName = "/dev/cu.usbmodem14641"; // UNO // var portName = "/dev/cu.usbserial-A9005QwS";
@@ -24,7 +25,7 @@ var loadingBarCnt = 0;
 var loadingBarNum = 15;
 
 var playing = false;
-var input, button, greeting;
+var input;
 var charLength = 0;
 var binNum = 0;
 var binName = "";
@@ -105,8 +106,6 @@ function draw() {
 
 
   if (enterInput) {
-    input_name = input.value();
-    input.remove();
 
     // input_name
     textSize(_fontSize + 20);
@@ -200,14 +199,13 @@ function draw() {
       if (!printOnPaper) {
         if (SERIAL_OUT) serial.write(msg_all); // make printer work!
         printOnPaper = true;
-        console.log("run displayLoadingBar()");
+        // console.log("run displayLoadingBar()");
         setTimeout(displayLoadingBar, 200);
       }
 
       // lodingBar
       if (!sessionEnd) {
         if (_displayLoadingBar == true) {
-          console.log("mcc");
           countLoading();
           _displayLoadingBar = false;
         }
@@ -236,7 +234,10 @@ function draw() {
         fill(255, 200);
         textSize(_fontSize);
         text(announceSessionEnd, width/2, 300); // thank you
-        setTimeout(reset, 3000);
+        if (!resetDone){
+          setTimeout(reset, 2000);
+          resetDone = true;
+        }
       }
 
     }
@@ -251,18 +252,20 @@ function displayLoadingBar() {
 }
 
 function reset() {
+  console.log("reset()");
 
   printOnPaper = false;
   sessionEnd = true;
-  // greet = "넥슨컴퓨터박물관에 오신 것을 환영합니다.\n\n이름을 입력하세요."
 
   // recreate Text Input 
-  input = createInput();
-  textAlign(CENTER);
-  input.position((width - input.elt.clientWidth)/2 - input.elt.clientWidth + 10, 600); // trim
-  input.attribute('maxlength', '4');
-  input.class("text-field"); // see data/style.css
-  input.elt.focus();
+  if (input == null) {
+    input = createInput();
+    textAlign(CENTER);
+    input.position((width - input.elt.clientWidth)/2 - input.elt.clientWidth + 10, 600); // trim
+    input.attribute('maxlength', '4');
+    input.class("text-field"); // see data/style.css
+    input.elt.focus();
+  }
 
   enterInput = false;
   binPrinting = false;
@@ -273,12 +276,14 @@ function reset() {
   loadingBarCnt = 0;
   _displayLoadingBar = false;
 
-  setTimeout(serialClose, 500);
+  resetDone = false;
+
+  serialClose();
 }
 
 
 function countBins() {
-  console.log("countBins()");
+  // console.log("countBins()");
   cnt++;
   if (binName[cnt] == ' ') charIdx++;
 
@@ -286,26 +291,25 @@ function countBins() {
     setTimeout(countBins, binPrintInterval);
   } else {
     numbersPrinted = true; // it's going to print barcode image
-    console.log("numbersPrinted: " + numbersPrinted);
+    // console.log("numbersPrinted: " + numbersPrinted);
   }
 }
 
 function countLoading() {
-  console.log("cl");
+  // console.log("cl");
   loadingBarCnt++;
 
   if (!sessionEnd){
     if (loadingBarCnt <= loadingBarNum) {
       setTimeout(countLoading, loadingBarRate);
     } else {
-      console.log("c1");
+      // console.log("c1");
       loadingBarCnt = 0;
       loadingBar = "";
       setTimeout(countLoading, loadingBarRate);
     }
   } else {
-      console.log("cend");
-
+      // console.log("cend");
   }
 }
 
@@ -344,8 +348,8 @@ function keyTyped() {
     console.log("enter input!");
 
     // check input length
-    var str = input.value();
-    charLength = str.length;
+    input_name = input.value()
+    charLength = input_name.length;
 
     //Enter reset
     if (charLength > 0) {
@@ -360,14 +364,14 @@ function keyTyped() {
       cnt = 0;
       charIdx = 0;
 
-      serialOpen();
+      if (SERIAL_OUT) serialOpen();
       
       // text handle
       // analyzeText(str);
-      binName = text2Binary(str);
-      console.log(binName);
+      binName = text2Binary(input_name);
+      // console.log(binName);
       binNum = binNum + (charLength - 1); // add num of space
-      console.log("binNum: " + binNum);
+      // console.log("binNum: " + binNum);
 
       // charXPoses
       charXPoses = [];
@@ -391,10 +395,12 @@ function keyTyped() {
 
       // msg_all = msg_date + "*" + firstCharBin;
       msg_all = msg_date + binName + '*';
-      console.log(msg_all);
-
-      console.log("binName: " + binName);
+      // console.log(msg_all);
+      // console.log("binName: " + binName);
       // console.log(binName[binNum-1]);
+
+      input.remove();
+      input = null;
 
       return false;
     }
@@ -446,10 +452,10 @@ function callback_serverConnected(msg) {
 }
 
 function callback_serialClose(c) {
-  console.log("serial CLOSE!!");
-  console.log(c);
-
+  console.log("serial close callback");
+  // console.log(c);
 }
+
 function callback_serialError(err) {
   console.log("serial ERROR!!");
   console.log(err);
@@ -475,9 +481,8 @@ function callback_serialEvent() {
       console.log("read byte: " + inByte.toString());
       console.log("serial data length has error...");
     } else if (inByte == 99) { // 'c' from arduino
-      console.log("read byte: " + inByte.toString());
-      console.log("serial close...");
-      serial.close();
+      console.log("read byte: " + inByte.toString() + " means close session.");
+      serialClose();
       sessionEnd = true;
     } else if (inByte == 107) {
       console.log("read byte: " + inByte.toString());
@@ -505,3 +510,11 @@ function keyPressed() {
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
 }
+
+// refresh handler
+window.onbeforeunload = function(e) {
+  console.log("refreshed");
+  serialClose();
+  // console.log(e);
+  return 'Do you?';
+};
