@@ -1,59 +1,62 @@
-var startXpos = 0;
 var SERIAL_OUT = true;
 
-var resetDone = false;
+// overall setting
+var trans = 255;
+var _fontSize = 80;
+
+// serial
 var serial = null;
 // var portName = "/dev/cu.usbmodem1461"; // UNO
 var portName = "/dev/cu.usbmodem14641"; // UNO // var portName = "/dev/cu.usbserial-A9005QwS";
 var msg_date, msg_all;
-var inByte = null;
+var inByte = null; // serial receive byte
 
+// condition
 var _displayLoadingBar = false;
 var printOnPaper = false;
 var sessionEnd = false;
 var connectionCheckTime = 2000; // ms
+var resetDone = false;
+var binPrinting = false;
+var numbersPrinted = false;
+var enterInput = false;
 
-var blinkRate = 100;
-var trans = 255;
-
+// input field
+var input, inputWidth;
 var input_name = "";
-var loadingBarRate = 300; // ms
+var inputPosX;
+var inputPosY = 600;
 
-var greetMovLimitY = 300; 
+// loading bar
+var loadingBarRate = 300; // ms
 var loadingBar = "";
 var loadingBarCnt = 0;
 var loadingBarNum = 15;
 
-var playing = false;
-var input;
-var charLength = 0;
-var binNum = 0;
-var binName = "";
-var binPrinting = false;
-var numbersPrinted = false;
-var binPrintInterval = 100; //ms
-var binText;
-var inputPosX = 450;
-var inputPosY = 500;
-var _fontSize = 80;
+// info
 var announceSessionEnd = "감사합니다";
 var greet = "이름을 입력해 주세요.\nEnter your name.";
 var inputInfo = "한글/영문 최대 4글자까지 입력 가능합니다.\nMaximum four letters in Korean/English";
 
+// greeting
+var greetMovLimitY = 300; 
 var greeting_posY = 150;
-var binsPosY = 500;
-var enterInput = false;
 var textVelY = 20;
-var cnt = 0;
+var startXpos = 0; // name char start X pos
+
+// char name
+var charLength = 0;
 var charIdx = 0;
-var fontWidth = 30;
 var charXPoses;
-var firstCharBin;
-var first = true;
-var textMag = 0;
-var binNumMag = 0;
 
+// binName
+var binNum = 0;
+var binName = "";
+var binPrintInterval = 100; //ms
+var binsPosY = 500;
+var cnt = 0;
 
+// date
 var d; // date object
 
 
@@ -61,9 +64,16 @@ function setup() {
  
   // get date
   d = new Date();
-  msg_date = d.getFullYear() + '/'
-            + ('0' + (d.getMonth()+1)).slice(-2) + '/'
-            + ('0' + d.getDate()).slice(-2);
+  // dd/mm/yyyy
+  // msg_date = d.getFullYear() + '/'
+  //           + ('0' + (d.getMonth()+1)).slice(-2) + '/'
+  //           + ('0' + d.getDate()).slice(-2);
+
+  // mm/dd/yyyy
+  msg_date = ('0' + (d.getMonth()+1)).slice(-2) + '/'
+            + ('0' + d.getDate()).slice(-2) + '/'
+            + d.getFullYear();
+
   // console.log(msg_date);
 
   // canvas
@@ -79,10 +89,13 @@ function setup() {
   // Text Input 
   input = createInput();
   textAlign(CENTER);
-  input.position((width - input.elt.clientWidth)/2 - input.elt.clientWidth + 10, 600); // trim
   input.attribute('maxlength', '4');
   input.class("text-field"); // see data/style.css
   input.elt.focus();
+  inputWidth = input.elt.clientWidth;
+  inputPosX = width/2 - inputWidth/2;
+  input.position(inputPosX, inputPosY); // need to be set after other options.
+ 
 
 }
 
@@ -155,7 +168,6 @@ function draw() {
 
       // rect, pulse, puhch hole
       if (binName[i] == '0'){
-        binNumMag = 0;
 
         // rect
         noStroke();
@@ -174,7 +186,6 @@ function draw() {
         ellipse(posX + i * binCharWidth, 130, binCharWidth*2/3, binCharWidth*2/3);
 
       } else if (binName[i] == '1'){
-        binNumMag = 200;
 
         // rect
         noStroke();
@@ -213,10 +224,6 @@ function draw() {
           _displayLoadingBar = false;
         }
 
-        // blinkRate = 600 + ((Math.sin(millis())) * 50);
-        // blinkRate = 2000; 
-        // var t = Math.round(millis() / blinkRate);
-
         fill(255, 200);
         textSize(_fontSize);
         textAlign(LEFT);
@@ -249,11 +256,31 @@ function draw() {
   }
 
 
-  // stroke(0, 255, 0);
-  // line(width/2, 0, width/2, height);
+  /*
+  // Guide lines
 
-  // stroke(0, 0, 255);
-  // line(startXpos, 0, startXpos, height);
+  // center line
+  stroke(0, 255, 0);
+  line(width/2, 0, width/2, height);
+
+  // char start X pos
+  stroke(0, 0, 255);
+  line(startXpos, 0, startXpos, height);
+
+  // show input field width
+  stroke(0, 255, 255);
+  line(inputPosX, 0, inputPosX, height);
+  line(inputPosX + inputWidth, 0, inputPosX + inputWidth, height);
+
+  // check width
+  stroke(255, 255, 0);
+  line(0, 0, 0, height);
+  line(width-1, 0, width-1, height);
+  */
+
+
+
+
 
 }
 
@@ -272,10 +299,10 @@ function reset() {
   if (input == null) {
     input = createInput();
     textAlign(CENTER);
-    input.position((width - input.elt.clientWidth)/2 - input.elt.clientWidth + 10, 600); // trim
     input.attribute('maxlength', '4');
     input.class("text-field"); // see data/style.css
     input.elt.focus();
+    input.position(inputPosX, inputPosY); // need to be set after other options.
   }
 
   cnt = 0;
@@ -284,7 +311,6 @@ function reset() {
   numbersPrinted = false;
   greeting_posY = 150;
   textVelY = 20;
-  textMag = 0;
   loadingBarCnt = 0;
   _displayLoadingBar = false;
 
