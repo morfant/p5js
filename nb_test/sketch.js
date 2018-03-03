@@ -1,4 +1,4 @@
-
+var startXpos = 0;
 var SERIAL_OUT = true;
 
 var resetDone = false;
@@ -133,21 +133,21 @@ function draw() {
   if (binPrinting) {
     push();
     translate(0, binsPosY);
-    var charWidth = _fontSize - 50;
+    var binCharWidth = _fontSize - 50;
 
     // bin number text
     for (var i = 0; i < cnt; i++) {
-      var posX = (width - (charWidth * binNum)) / 2 + 15; // console.log(posX); // trim
+      var posX = (width - (binCharWidth * binNum)) / 2 + 15; // console.log(posX); // trim
 
-      textSize(charWidth);
+      textSize(binCharWidth);
       fill(255, trans);
-      text(binName[i], posX + i * charWidth, 0);
+      text(binName[i], posX + i * binCharWidth, 0);
 
       // bin number pointing line
       // stroke(113, 246, 79, 100); // green
       stroke(255, 100);
       if (!numbersPrinted) {
-        if (i == cnt - 1) line(charXPoses[charIdx], -230, posX + i * charWidth, -50)
+        if (i == cnt - 1) line(charXPoses[charIdx], greeting_posY + 50, posX + i * binCharWidth, -50)
       }
 
       // rect, pulse, puhch hole
@@ -157,18 +157,18 @@ function draw() {
         // rect
         noStroke();
         fill(0, trans);
-        rect(posX + (i-0.5) * (charWidth), 20, charWidth, charWidth);
+        rect(posX + (i-0.5) * (binCharWidth), 20, binCharWidth, binCharWidth);
 
         // pulse
         stroke(255, trans);
-        line(posX + (i-0.5) * (charWidth), 100, posX + (i+0.5) * (charWidth), 100);
+        line(posX + (i-0.5) * (binCharWidth), 100, posX + (i+0.5) * (binCharWidth), 100);
         if (binName[i-1] == '1') {
-          line(posX + (i-0.5) * (charWidth), 100, posX + (i-0.5) * (charWidth), 70);
+          line(posX + (i-0.5) * (binCharWidth), 100, posX + (i-0.5) * (binCharWidth), 70);
         }
 
         // punch hole
         noStroke();
-        ellipse(posX + i * charWidth, 130, charWidth*2/3, charWidth*2/3);
+        ellipse(posX + i * binCharWidth, 130, binCharWidth*2/3, binCharWidth*2/3);
 
       } else if (binName[i] == '1'){
         binNumMag = 200;
@@ -176,18 +176,18 @@ function draw() {
         // rect
         noStroke();
         fill(255, trans);
-        rect(posX + (i-0.5) * (charWidth), 20, charWidth, charWidth);
+        rect(posX + (i-0.5) * (binCharWidth), 20, binCharWidth, binCharWidth);
 
         // pulse
         stroke(255, trans);
-        line(posX + (i-0.5) * (charWidth), 70, posX + (i+0.5) * (charWidth), 70);
+        line(posX + (i-0.5) * (binCharWidth), 70, posX + (i+0.5) * (binCharWidth), 70);
         if (binName[i-1] == '0') {
-          line(posX + (i-0.5) * (charWidth), 70, posX + (i-0.5) * (charWidth), 100);
+          line(posX + (i-0.5) * (binCharWidth), 70, posX + (i-0.5) * (binCharWidth), 100);
         }
 
         // punch hole
         // noStroke();
-        // ellipse(posX + i * charWidth, 130, 20, 20);
+        // ellipse(posX + i * binCharWidth, 130, 20, 20);
 
       } else if (binName[i] == ' ') {
         // console.log("except: " + binName[i]);
@@ -244,6 +244,14 @@ function draw() {
 
     pop();
   }
+
+
+  stroke(0, 255, 0);
+  line(width/2, 0, width/2, height);
+
+  stroke(0, 0, 255);
+  line(startXpos, 0, startXpos, height);
+
 }
 
 
@@ -351,6 +359,18 @@ function keyTyped() {
     input_name = input.value()
     charLength = input_name.length;
 
+    var charWidth = [];
+    var sumCharWidth = 0;
+    var temp_space = 10;
+    for (var i = 0; i < input_name.length; i++) {
+      console.log(textWidth(input_name[i]));
+      charWidth[i] = textWidth(input_name[i]);
+      sumCharWidth += charWidth[i];
+      if (i < (input_name.length-1)) {
+        sumCharWidth += temp_space;
+      }
+    }
+
     //Enter reset
     if (charLength > 0) {
       sessionEnd = false;
@@ -367,37 +387,43 @@ function keyTyped() {
       if (SERIAL_OUT) serialOpen();
       
       // text handle
-      // analyzeText(str);
       binName = text2Binary(input_name);
       // console.log(binName);
       binNum = binNum + (charLength - 1); // add num of space
       // console.log("binNum: " + binNum);
 
-      // charXPoses
+      // set charXPoses
       charXPoses = [];
-      var charWidth = _fontSize - 10; // need to be trim
-
+      // var startXpos = width/2 - sumCharWidth/2;
+      startXpos = width/2 - sumCharWidth/2;
       if (charLength == 1) {
         charXPoses[0] = width/2;
       } else if (charLength == 2) {
-        charXPoses[0] = width/2 - (charWidth);
-        charXPoses[1] = width/2 + (charWidth);
+        // charXPoses[0] = width/2 - (charWidth[0] + temp_space/2);
+        // charXPoses[1] = width/2 + (charWidth[1] + temp_space/2);
+        charXPoses[0] = startXpos + (charWidth[0]/2 + temp_space/2);
+        charXPoses[1] = startXpos + (charWidth[0] + charWidth[1]/2 + temp_space/2);
       } else if (charLength == 3) {
-        charXPoses[0] = width/2 - (charWidth + charWidth/2);
-        charXPoses[1] = width/2;
-        charXPoses[2] = width/2 + (charWidth + charWidth/2);
+        // charXPoses[0] = width/2 - (charWidth[1] + charWidth[0]/2 + temp_space);
+        // charXPoses[1] = width/2;
+        // charXPoses[2] = width/2 + (charWidth[1] + charWidth[2]/2 + temp_space);
+
+        charXPoses[0] = startXpos + (charWidth[0]/2 + temp_space/2);
+        charXPoses[1] = startXpos + (charWidth[0] + charWidth[1]/2 + temp_space/2);
+        charXPoses[2] = startXpos + (charWidth[0] + charWidth[1] + charWidth[2]/2 + temp_space);
       } else if (charLength == 4) {
-        charXPoses[0] = width/2 - (charWidth * 2);
-        charXPoses[1] = width/2 - (charWidth * 1);
-        charXPoses[2] = width/2 + (charWidth * 1);
-        charXPoses[3] = width/2 + (charWidth * 2);
+        // charXPoses[0] = width/2 - (charWidth[0] + charWidth[1]/2 + temp_space);
+        // charXPoses[1] = width/2 - (charWidth[1]/2 + temp_space/2);
+        // charXPoses[2] = width/2 + (charWidth[2]/2 + temp_space/2);
+        // charXPoses[3] = width/2 + (charWidth[2] + charWidth[3]/2 + temp_space);
+
+        charXPoses[0] = startXpos + (charWidth[0]/2 + temp_space/2);
+        charXPoses[1] = startXpos + (charWidth[0] + charWidth[1]/2 + temp_space/2);
+        charXPoses[2] = startXpos + (charWidth[0] + charWidth[1] + charWidth[2]/2 + temp_space);
+        charXPoses[3] = startXpos + (charWidth[0] + charWidth[1] + charWidth[2] + charWidth[3]/2 + temp_space);
       }
 
-      // msg_all = msg_date + "*" + firstCharBin;
-      msg_all = msg_date + binName + '*';
-      // console.log(msg_all);
-      // console.log("binName: " + binName);
-      // console.log(binName[binNum-1]);
+      msg_all = msg_date + binName + '*'; // '*' is a end mark of serial send
 
       input.remove();
       input = null;
@@ -406,7 +432,7 @@ function keyTyped() {
     }
 
   } else if (keyCode === 32) { // space key
-    console.log("sp");
+    console.log("space pressed");
     console.log(msg_date);
     console.log(msg_all);
     // serial.write(msg_all); // make printer work!
@@ -416,13 +442,6 @@ function keyTyped() {
   } else {
     // console.log(keyCode);
   }
-}
-
-function analyzeText(string) {
-  string.split('').map(function (char) {
-    var b = char.charCodeAt(0).toString(2).length;
-    binNum += b;
-  });
 }
 
 function text2Binary(string) {
