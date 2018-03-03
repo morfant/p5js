@@ -117,14 +117,17 @@ function draw() {
     greeting_posY -= textVelY/2;
 
     // phase of animation
-    if (greeting_posY < -greetMovLimitY && numbersPrinted == false) { // moving toward Y is finished
+    if (greeting_posY < -greetMovLimitY) { // moving toward Y is finished
+
       // greet = "";
       textVelY = 0; // velocity Y is zero = will not move anymore
 
-      // trigger recursive function
-      if (!binPrinting) {
-        binPrinting = true;
-        countBins();
+      if (numbersPrinted == false) {
+        // trigger recursive function
+        if (!binPrinting) {
+          binPrinting = true;
+          countBins();
+        }
       }
     } 
   }
@@ -246,11 +249,11 @@ function draw() {
   }
 
 
-  stroke(0, 255, 0);
-  line(width/2, 0, width/2, height);
+  // stroke(0, 255, 0);
+  // line(width/2, 0, width/2, height);
 
-  stroke(0, 0, 255);
-  line(startXpos, 0, startXpos, height);
+  // stroke(0, 0, 255);
+  // line(startXpos, 0, startXpos, height);
 
 }
 
@@ -275,6 +278,7 @@ function reset() {
     input.elt.focus();
   }
 
+  cnt = 0;
   enterInput = false;
   binPrinting = false;
   numbersPrinted = false;
@@ -361,9 +365,10 @@ function keyTyped() {
 
     var charWidth = [];
     var sumCharWidth = 0;
-    var temp_space = 10;
+    var temp_space = 20;
+
     for (var i = 0; i < input_name.length; i++) {
-      console.log(textWidth(input_name[i]));
+      // console.log(textWidth(input_name[i]));
       charWidth[i] = textWidth(input_name[i]);
       sumCharWidth += charWidth[i];
       if (i < (input_name.length-1)) {
@@ -371,7 +376,7 @@ function keyTyped() {
       }
     }
 
-    //Enter reset
+    //Enter 
     if (charLength > 0) {
       sessionEnd = false;
       enterInput = true;
@@ -388,9 +393,9 @@ function keyTyped() {
       
       // text handle
       binName = text2Binary(input_name);
-      // console.log(binName);
+      console.log(binName);
       binNum = binNum + (charLength - 1); // add num of space
-      // console.log("binNum: " + binNum);
+      console.log("binNum: " + binNum);
 
       // set charXPoses
       charXPoses = [];
@@ -399,28 +404,23 @@ function keyTyped() {
       if (charLength == 1) {
         charXPoses[0] = width/2;
       } else if (charLength == 2) {
-        // charXPoses[0] = width/2 - (charWidth[0] + temp_space/2);
-        // charXPoses[1] = width/2 + (charWidth[1] + temp_space/2);
-        charXPoses[0] = startXpos + (charWidth[0]/2 + temp_space/2);
-        charXPoses[1] = startXpos + (charWidth[0] + charWidth[1]/2 + temp_space/2);
+        charXPoses[0] = startXpos + (charWidth[0]/2);
+        charXPoses[1] = startXpos + (charWidth[0] + temp_space + charWidth[1]/2);
       } else if (charLength == 3) {
-        // charXPoses[0] = width/2 - (charWidth[1] + charWidth[0]/2 + temp_space);
-        // charXPoses[1] = width/2;
-        // charXPoses[2] = width/2 + (charWidth[1] + charWidth[2]/2 + temp_space);
-
         charXPoses[0] = startXpos + (charWidth[0]/2 + temp_space/2);
-        charXPoses[1] = startXpos + (charWidth[0] + charWidth[1]/2 + temp_space/2);
-        charXPoses[2] = startXpos + (charWidth[0] + charWidth[1] + charWidth[2]/2 + temp_space);
+        charXPoses[1] = startXpos + (charWidth[0] + temp_space + charWidth[1]/2);
+        charXPoses[2] = startXpos + (charWidth[0] + temp_space + charWidth[1] + temp_space + charWidth[2]/2);
       } else if (charLength == 4) {
-        // charXPoses[0] = width/2 - (charWidth[0] + charWidth[1]/2 + temp_space);
-        // charXPoses[1] = width/2 - (charWidth[1]/2 + temp_space/2);
-        // charXPoses[2] = width/2 + (charWidth[2]/2 + temp_space/2);
-        // charXPoses[3] = width/2 + (charWidth[2] + charWidth[3]/2 + temp_space);
 
         charXPoses[0] = startXpos + (charWidth[0]/2 + temp_space/2);
-        charXPoses[1] = startXpos + (charWidth[0] + charWidth[1]/2 + temp_space/2);
-        charXPoses[2] = startXpos + (charWidth[0] + charWidth[1] + charWidth[2]/2 + temp_space);
-        charXPoses[3] = startXpos + (charWidth[0] + charWidth[1] + charWidth[2] + charWidth[3]/2 + temp_space);
+        charXPoses[1] = startXpos + (charWidth[0] + temp_space + charWidth[1]/2);
+        charXPoses[2] = startXpos + (charWidth[0] + temp_space + charWidth[1] + temp_space + charWidth[2]/2);
+        charXPoses[3] = startXpos + (
+          charWidth[0] + temp_space +
+          charWidth[1] + temp_space +
+          charWidth[2] + temp_space + 
+          charWidth[3]/2
+        );
       }
 
       msg_all = msg_date + binName + '*'; // '*' is a end mark of serial send
@@ -523,6 +523,8 @@ function keyPressed() {
   } else if (keyCode === ESCAPE) {
     console.log("esc");
     return false;
+  } else {
+    console.log(key);
   }
 }
 
