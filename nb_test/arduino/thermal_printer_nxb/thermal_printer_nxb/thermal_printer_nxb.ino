@@ -217,6 +217,7 @@ void loop() {
           //          printer.printBitmap(nxc_qr_code_low_width, nxc_qr_code_low_height, nxc_qr_code_low_data);
 
 
+
           // Text
           printer.justify('C');
           printer.setSize('L');
@@ -335,6 +336,7 @@ void loop() {
               break;
 
           }
+
 
 
           // date
