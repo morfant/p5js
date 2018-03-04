@@ -459,9 +459,9 @@ function keyTyped() {
     }
 
   } else if (keyCode === 32) { // space key
-    console.log("space pressed");
-    console.log(msg_date);
-    console.log(msg_all);
+    // console.log("space pressed");
+    // console.log(msg_date);
+    // console.log(msg_all);
     // serial.write(msg_all); // make printer work!
 
     return false; // Prevent the key working as default function
@@ -540,18 +540,18 @@ function callback_serialEvent() {
 // keyPressed
 function keyPressed() {
   if (keyCode === 33) { // 'page up' key
-    var fs = fullscreen();
-    fullscreen(!fs);
+    // var fs = fullscreen();
+    // fullscreen(!fs);
     return false;
   } else if (keyCode === DELETE) {
-    console.log("reset()");
-    reset();
+    // console.log("reset()");
+    // reset();
     return false;
   } else if (keyCode === ESCAPE) {
-    console.log("esc");
+    // console.log("esc");
     return false;
   } else {
-    console.log(key);
+    // console.log(key);
   }
 }
 
