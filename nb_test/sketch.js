@@ -7,7 +7,8 @@ var _fontSize = 80;
 // serial
 var serial = null;
 // var portName = "/dev/cu.usbmodem1461"; // UNO
-var portName = "/dev/cu.usbmodem14641"; // UNO // var portName = "/dev/cu.usbserial-A9005QwS";
+// var portName = "/dev/cu.usbmodem14641"; // UNO // var portName = "/dev/cu.usbserial-A9005QwS";
+var portName = "/dev/cu.usbmodem1441"; // UNO // var portName = "/dev/cu.usbserial-A9005QwS";
 var msg_date, msg_all;
 var inByte = null; // serial receive byte
 
@@ -39,7 +40,7 @@ var greet = "이름을 입력해 주세요.\nEnter your name.";
 var inputInfo = "한글/영문 최대 4글자까지 입력 가능합니다.\nMaximum four letters in Korean/English";
 
 // greeting
-var greetMovLimitY = 300; 
+var greetMovLimitY = 300;
 var greeting_posY = 150;
 var textVelY = 20;
 var startXpos = 0; // name char start X pos
@@ -61,7 +62,7 @@ var d; // date object
 
 
 function setup() {
- 
+
   // get date
   d = new Date();
   // dd/mm/yyyy
@@ -86,7 +87,7 @@ function setup() {
   createElement("br");
   createElement("br");
 
-  // Text Input 
+  // Text Input
   input = createInput();
   textAlign(CENTER);
   input.attribute('maxlength', '4');
@@ -95,7 +96,7 @@ function setup() {
   inputWidth = input.elt.clientWidth;
   inputPosX = width/2 - inputWidth/2;
   input.position(inputPosX, inputPosY); // need to be set after other options.
- 
+
 
 }
 
@@ -107,7 +108,7 @@ function draw() {
   noStroke();
   textAlign(CENTER);
 
-  // greeting text 
+  // greeting text
   textSize(_fontSize);
   push();
   translate(width/2, greeting_posY);
@@ -142,14 +143,14 @@ function draw() {
           countBins();
         }
       }
-    } 
+    }
   }
 
   // print bin numbers
   if (binPrinting) {
     push();
     translate(0, binsPosY);
-    var binCharWidth = _fontSize - 50;
+    var binCharWidth = _fontSize - 52;
 
     // bin number text
     for (var i = 0; i < cnt; i++) {
@@ -295,7 +296,7 @@ function reset() {
   printOnPaper = false;
   sessionEnd = true;
 
-  // recreate Text Input 
+  // recreate Text Input
   if (input == null) {
     input = createInput();
     textAlign(CENTER);
@@ -402,7 +403,7 @@ function keyTyped() {
       }
     }
 
-    //Enter 
+    //Enter
     if (charLength > 0) {
       sessionEnd = false;
       enterInput = true;
@@ -416,7 +417,7 @@ function keyTyped() {
       charIdx = 0;
 
       if (SERIAL_OUT) serialOpen();
-      
+
       // text handle
       binName = text2Binary(input_name);
       console.log(binName);
@@ -444,7 +445,7 @@ function keyTyped() {
         charXPoses[3] = startXpos + (
           charWidth[0] + temp_space +
           charWidth[1] + temp_space +
-          charWidth[2] + temp_space + 
+          charWidth[2] + temp_space +
           charWidth[3]/2
         );
       }
@@ -475,7 +476,7 @@ function text2Binary(string) {
     var charBin = char.charCodeAt(0).toString(2);
     var l = charBin.length;
     if (l < 16) {
-      var leadingZero = ""; 
+      var leadingZero = "";
       for (var i = 0; i < (16 - l); i++) {
         leadingZero = leadingZero + '0';
       }
