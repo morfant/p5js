@@ -41,9 +41,9 @@ function draw() {
     line(width - pad, height - pad, pad, height - pad)
     line(pad, height - pad, pad, pad)
 
-    // Center line
-    stroke(255, 0, 0)
-    line(width/2, 0, width/2, height)
+    // Center red line
+    // stroke(255, 0, 0)
+    // line(width/2, 0, width/2, height)
 
 
     // Update buffer
