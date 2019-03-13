@@ -7,6 +7,48 @@ let baseYLondon = 0
 let baseYSeoul = 0
 let velLondon = 3
 let velSeoul = 1
+let wc = null
+
+class WaveCircle {
+    constructor(_x, _y, _r) {
+        this.x = _x
+        this.y = _y
+        this.r = _r
+    }
+
+    update(bufferArray) {
+        this.buffer = bufferArray
+    }
+
+    draw() {
+        angleMode(DEGREES)
+
+        // noFill()
+        let newValue = this.buffer[this.buffer.length - 1]
+        fill(10, 80, 200, (1 - newValue) * 1000)
+        strokeWeight(0.4)
+        stroke(0, 150)
+
+        push()
+        translate(this.x, this.y)
+        beginShape()
+        let d = 360 / this.buffer.length
+        for (var i = 0; i <this.buffer.length; i++) {
+
+            let x = this.r * cos(i * d)
+            let y = this.r * sin(i * d)
+            vertex(x, y - this.buffer[this.buffer.length - i] * 1000)
+            // vertex(w - (i*velLondon), baseYLondon + bufLondon[bufLondon.length - i] * 1000)
+
+        }
+        endShape()
+        pop()
+
+
+    }
+
+}
+
 
 function setup() {
 
@@ -14,25 +56,29 @@ function setup() {
     createCanvas(1280, 900)
     background(255)
 
+    wc = new WaveCircle(width/2, height/2, 200)
+
     // Audio In
     mic = new p5.AudioIn()
     mic.start();
 
     // Buffer Init
     bufNumLondon = (width - (pad * 2))/velLondon
-    bufNumSeoul = (width - (pad * 2))/velSeoul
+    // bufNumSeoul = (width - (pad * 2))/velSeoul
+    bufNumSeoul = 360 * 4
     bufLondon.fill(0)
     bufSeoul.fill(0)
 
     baseYLondon = (height - (pad * 2)) / 3
-    print(baseYLondon)
+    // print(baseYLondon)
     baseYSeoul = baseYLondon * 2
 
 }
 
 function draw() {
 
-    background(255, 25)
+    // background(255, 25)
+    background(255)
 
     // Boundary
     stroke(0)
@@ -64,6 +110,9 @@ function draw() {
         // print(bufSeoul)
     }
 
+    wc.update(bufSeoul)
+    wc.draw()
+
 
 
     // Sound line
@@ -77,27 +126,28 @@ function draw() {
 
     // }
 
-    fill(0, (1 - newValue) * 1000)
-    noFill()
-    strokeWeight(0.4)
-    stroke(0, 150)
-    beginShape()
-    for (var i = 0; i < bufNumLondon; i++) {
-        let w = width - pad
-        vertex(w - (i*velLondon), baseYLondon + bufLondon[bufLondon.length - i] * 1000)
-    }
-    endShape(CLOSE)
 
-    fill(10, 80, 200, (1 - newValue) * 1000)
-    noFill()
-    strokeWeight(0.4)
-    stroke(10, 80, 200)
-    beginShape()
-    for (var i = 0; i < bufNumSeoul; i++) {
-        let w = width - pad
-        vertex(pad + (i*velSeoul), baseYSeoul - bufSeoul[bufSeoul.length - i] * 1000)
-    }
-    endShape()
+    // fill(0, (1 - newValue) * 1000)
+    // noFill()
+    // strokeWeight(0.4)
+    // stroke(0, 150)
+    // beginShape()
+    // for (var i = 0; i < bufNumLondon; i++) {
+    //     let w = width - pad
+    //     vertex(w - (i*velLondon), baseYLondon + bufLondon[bufLondon.length - i] * 1000)
+    // }
+    // endShape()
+
+    // fill(10, 80, 200, (1 - newValue) * 1000)
+    // noFill()
+    // strokeWeight(0.4)
+    // stroke(10, 80, 200)
+    // beginShape()
+    // for (var i = 0; i < bufNumSeoul; i++) {
+    //     let w = width - pad
+    //     vertex(pad + (i*velSeoul), baseYSeoul - bufSeoul[bufSeoul.length - i] * 1000)
+    // }
+    // endShape()
 
 
 
