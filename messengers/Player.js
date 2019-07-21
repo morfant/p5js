@@ -1,9 +1,10 @@
 class Player {
 
-  constructor() {
+  constructor(posX, posY, id) {
+    this.id = id
     this.radius = 40
-    this.posX = 200
-    this.posY = 300
+    this.posX = posX
+    this.posY = posY
     this.velX = 0
     this.velY = 0
     this.accX = 0
@@ -21,6 +22,13 @@ class Player {
 
     this.barrelAngle = 0
     this.barrelLength = 100
+
+  }
+
+  setColor(r, g, b) {
+    this.colorR = r
+    this.colorG = g
+    this.colorB = b
 
   }
 
@@ -107,9 +115,25 @@ class Player {
 
   }
 
+
+  setHitByBullet(type) {
+
+    if (type === '+') {
+
+    } else if (type === '-') {
+
+    }
+    console.log(this.id + " hitted by bullet " + type);
+
+  }
+
   getPosition() {
     let pos = createVector(this.posX, this.posY)
     return pos
+  }
+
+  getRadius() {
+    return this.radius
   }
 
   getBarrelAngle() {

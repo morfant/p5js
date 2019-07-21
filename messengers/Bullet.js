@@ -1,7 +1,7 @@
 class Bullet {
   
   constructor(posX, posY, targetForce) {
-    this.radius = 30 
+    this.radius = 10 
     this.posX = posX 
     this.posY = posY 
     this.velX = 0
@@ -14,7 +14,8 @@ class Bullet {
 
     this.type = '-' // -, +
     this.isDead = false
-    this.hitPlaher = false
+    this.hitPlayer = false
+    this.other = null
 
     this.targetForce = targetForce
   }
@@ -36,6 +37,21 @@ class Bullet {
 
   }
 
+
+  collide() {
+
+    for (let p of g_playerArray) {
+      let hit = collideCircleCircle(this.posX, this.posY, this.radius, p.getPosition().x, p.getPosition().y, p.getRadius())
+      if (hit) {
+        this.other = p
+        this.hitPlayer = true
+        this.isDead = true
+        p.setHitByBullet(this.type)
+      }
+    }
+
+  }
+
   update() {
 
     // console.log("hitT: " + this.hitT + " hitB: " + this.hitB + " hitL: " + this.hitL + " hitR: " + this.hitR )
@@ -49,7 +65,6 @@ class Bullet {
     this.posY = this.posY + this.velY
 
     // console.log("x: " + this.posX + " / y: " + this.posY)
-
 
   }
 
