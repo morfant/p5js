@@ -27,6 +27,7 @@ class Player {
     this.hitR = false // Right border
 
     this.barrelAngle = 0
+    this.barrelLength = 100
 
   }
 
@@ -51,8 +52,13 @@ class Player {
   }
 
   turnBarrel(a) {
-    console.log(a)
     this.barrelAngle += a
+    this.barrelAngle %= 360
+
+    if (this.barrelAngle < 0) {
+      this.barrelAngle = 360 + this.barrelAngle
+    }
+
   }
   
 
@@ -111,7 +117,7 @@ class Player {
 
     stroke(this.colorR, this.colorG, this.colorB)
     rotate(this.barrelAngle)
-    line(0, 0, 200, 0)
+    line(0, 0, this.barrelLength, 0)
     pop()
 
     // push()
@@ -124,6 +130,26 @@ class Player {
   getPosition() {
     let pos = createVector(this.posX, this.posY)
     return pos
+  }
+
+  getBarrelAngle() {
+    return this.barrelAngle
+  }
+
+  getBarrelLength() {
+    return this.barrelLength
+  }
+
+  getBarrel() {
+    console.log("ba: " + this.barrelAngle);
+    
+    let vx = cos(360 - this.barrelAngle) * this.barrelLength 
+    let vy = sin(360 - this.barrelAngle) * this.barrelLength 
+
+    // console.log("vx: " + vx)
+    // console.log("vy: " + vy)
+    let v = createVector(vx, -vy)
+    return v
   }
 
 }
