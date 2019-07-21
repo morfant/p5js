@@ -4,9 +4,9 @@ class Bullet {
     this.radius = 30 
     this.posX = posX 
     this.posY = posY 
-    this.velX = 1
-    this.velY = 1
-    this.mass = 0.1
+    this.velX = 0
+    this.velY = 0
+    this.mass = 1
 
     this.colorR = 200
     this.colorG = 200
@@ -19,22 +19,14 @@ class Bullet {
     this.targetForce = targetForce
   }
 
-  // setEnvironment (w, h, b) {
-  //   this.envWitdh = w 
-  //   this.envHeight = h 
-  //   this.envBorderThickness = b
-  // }
-
-
   shoot() { // f: shooting force
 
     // console.log("shoot " + targetForce);
-    
-    // this.accX = targetForce.x/this.mass
-    // this.accY = targetForce.y/this.mass
 
-    this.accX = this.targetForce.x/10
-    this.accY = this.targetForce.y/10
+    this.accX = this.targetForce.x/this.mass / 10
+    this.accY = this.targetForce.y/this.mass / 10
+
+    // console.log(this.accX + " / " + this.accY);
 
     this.velX = this.velX + this.accX
     this.velY = this.velY + this.accY
@@ -45,12 +37,6 @@ class Bullet {
   }
 
   update() {
-
-    // collide with border
-    // this.hitT = collideRectCircle(0, 0, this.envWitdh, this.envBorderThickness, this.posX, this.posY, this.radius)
-    // this.hitB = collideRectCircle(0, this.envHeight - this.envBorderThickness, this.envWitdh, this.borderThickness, this.posX, this.posY, this.radius) 
-    // this.hitL = collideRectCircle(0, 0, this.envBorderThickness, this.envHeight, this.posX, this.posY, this.radius)
-    // this.hitR = collideRectCircle(this.envWitdh - this.envBorderThickness, 0, this.envBorderThickness, this.envHeight, this.posX, this.posY, this.radius)
 
     // console.log("hitT: " + this.hitT + " hitB: " + this.hitB + " hitL: " + this.hitL + " hitR: " + this.hitR )
 

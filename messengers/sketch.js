@@ -58,16 +58,6 @@ function draw() {
   playerPosition[0] = p1.getPosition()
   // playerPosition[1] = p2.getPosition()
 
-  // for (b of g_bulletArray) {
-  //   if (b.getIsDead()) {
-  //     delete b
-  //     g_bulletArray.pop(b)
-  //   } else {
-  //     b.update()
-  //     b.draw()
-  //   }
-  // }
-
   for (let i = g_bulletArray.length - 1; i >= 0; i--) {
     let b = g_bulletArray[i]
     if (b.getIsDead()) {
@@ -79,12 +69,6 @@ function draw() {
     }
   }
 
-  // g_bulletArray.forEach(function(e) {
-  //   e.shoot()
-  //   e.update()
-  //   e.draw()
-    
-  // })
 }
 
 
@@ -93,18 +77,16 @@ function draw() {
 
 function keyTyped() {
   if (key === 'f') {
-    console.log("f")
 
     let barrelVector = p1.getBarrel()
     let bulletPosX = playerPosition[0].x + barrelVector.x
     let bulletPosY = playerPosition[0].y + barrelVector.y 
 
-
     // console.log(playerPosition[0].x)
     // console.log(playerPosition[0].y)
 
-    console.log(barrelVector.x)
-    console.log(barrelVector.y)
+    // console.log(barrelVector.x)
+    // console.log(barrelVector.y)
 
     // console.log(bulletPosX)
     // console.log(bulletPosY)
@@ -113,7 +95,7 @@ function keyTyped() {
     b.shoot()
     g_bulletArray.push(b)
 
-    console.log(g_bulletArray);
+    // console.log(g_bulletArray);
     
 
   }

@@ -141,14 +141,12 @@ class Player {
   }
 
   getBarrel() {
-    console.log("ba: " + this.barrelAngle);
-    
     let vx = cos(360 - this.barrelAngle) * this.barrelLength 
     let vy = sin(360 - this.barrelAngle) * this.barrelLength 
 
     // console.log("vx: " + vx)
     // console.log("vy: " + vy)
-    let v = createVector(vx, -vy)
+    let v = createVector(round(vx), round(-vy))
     return v
   }
 
