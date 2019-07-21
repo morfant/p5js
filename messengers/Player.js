@@ -14,13 +14,6 @@ class Player {
     this.colorG = 204
     this.colorB = 0
 
-    this.targetX = 0
-    this.targetY = 0
-
-    this.envBorderThickness = 4
-    this.envWitdh = 100
-    this.envHeight = 100
-
     this.hitT = false // hit with Top border
     this.hitB = false // Bottom border
     this.hitL = false // Left border
@@ -30,14 +23,6 @@ class Player {
     this.barrelLength = 100
 
   }
-
-
-  setEnvironment (w, h, b) {
-    this.envWitdh = w 
-    this.envHeight = h 
-    this.envBorderThickness = b
-  }
-
 
   addForce(fx, fy) {
 
@@ -83,10 +68,10 @@ class Player {
     }
 
     // collide with border
-    this.hitT = collideRectCircle(0, 0, this.envWitdh, this.envBorderThickness, this.posX, this.posY, this.radius)
-    this.hitB = collideRectCircle(0, this.envHeight - this.envBorderThickness, this.envWitdh, this.borderThickness, this.posX, this.posY, this.radius) 
-    this.hitL = collideRectCircle(0, 0, this.envBorderThickness, this.envHeight, this.posX, this.posY, this.radius)
-    this.hitR = collideRectCircle(this.envWitdh - this.envBorderThickness, 0, this.envBorderThickness, this.envHeight, this.posX, this.posY, this.radius)
+    this.hitT = collideRectCircle(0, 0, g_width, g_borderThickness, this.posX, this.posY, this.radius)
+    this.hitB = collideRectCircle(0, g_height - g_borderThickness, g_width, g_borderThickness, this.posX, this.posY, this.radius) 
+    this.hitL = collideRectCircle(0, 0, g_borderThickness, g_height, this.posX, this.posY, this.radius)
+    this.hitR = collideRectCircle(g_width - g_borderThickness, 0, g_borderThickness, g_height, this.posX, this.posY, this.radius)
     // console.log("hitT: " + this.hitT + " hitB: " + this.hitB + " hitL: " + this.hitL + " hitR: " + this.hitR )
 
     // bound player
@@ -119,11 +104,6 @@ class Player {
     rotate(this.barrelAngle)
     line(0, 0, this.barrelLength, 0)
     pop()
-
-    // push()
-    // translate(this.posX, this.posY)
-    // rect()
-    // pop()
 
   }
 

@@ -1,10 +1,9 @@
 g_width = 0 
 g_height = 0
-g_borderThickness = 4
+g_borderThickness = 10 
 g_bulletArray = []
 
 var p1 = new Player();
-var borderThickness = 4;
 var playerPosition = [];
 
 function setup() {
@@ -12,10 +11,9 @@ function setup() {
   createCanvas(800, 500)
   angleMode(DEGREES)
 
-  p1.setEnvironment(width, height, borderThickness)
+  // p1.setEnvironment(width, height, borderThickness)
   g_width = width
   g_height = height
-
 
 }
 
@@ -26,10 +24,10 @@ function draw() {
 
   // border
   fill(100, 200, 200)
-  rect(0, 0, width, borderThickness) // top
-  rect(0, height - borderThickness, width, borderThickness) // bottom
-  rect(0, 0, borderThickness, height) // left
-  rect(width - borderThickness, 0, borderThickness, height) // right
+  rect(0, 0, g_width, g_borderThickness) // top
+  rect(0, g_height - g_borderThickness, g_width, g_borderThickness) // bottom
+  rect(0, 0, g_borderThickness, g_height) // left
+  rect(g_width - g_borderThickness, 0, g_borderThickness, g_height) // right
 
 
 
@@ -82,21 +80,9 @@ function keyTyped() {
     let bulletPosX = playerPosition[0].x + barrelVector.x
     let bulletPosY = playerPosition[0].y + barrelVector.y 
 
-    // console.log(playerPosition[0].x)
-    // console.log(playerPosition[0].y)
-
-    // console.log(barrelVector.x)
-    // console.log(barrelVector.y)
-
-    // console.log(bulletPosX)
-    // console.log(bulletPosY)
-
     let b = new Bullet(bulletPosX, bulletPosY, barrelVector)
     b.shoot()
     g_bulletArray.push(b)
-
-    // console.log(g_bulletArray);
-    
 
   }
   return false;
