@@ -23,6 +23,8 @@ class Player {
     this.barrelAngle = 0
     this.barrelLength = 100
 
+    this.isDead = false
+
   }
 
   setColor(r, g, b) {
@@ -56,6 +58,11 @@ class Player {
   
 
   update() {
+
+    if (this.radius < g_playerLifeLimit) {
+      this.isDead = true
+      return
+    }
 
 
     // friction
@@ -101,6 +108,7 @@ class Player {
 
   draw() {
 
+    if (this.isDead) return
 
     push()
     translate(this.posX, this.posY)
@@ -119,12 +127,20 @@ class Player {
   setHitByBullet(type) {
 
     if (type === '+') {
-
+      this.makeBigger()
     } else if (type === '-') {
-
+      this.makeSmaller()
     }
-    console.log(this.id + " hitted by bullet " + type);
+    // console.log(this.id + " hitted by bullet " + type);
 
+  }
+
+  makeBigger() {
+    this.radius += 5
+  }
+
+  makeSmaller() {
+    this.radius -= 5
   }
 
   getPosition() {
@@ -140,9 +156,16 @@ class Player {
     return this.barrelAngle
   }
 
+  setBarrelAngle(deg) {
+    console.log(deg);
+    
+    this.barrelAngle = deg
+  }
+
   getBarrelLength() {
     return this.barrelLength
   }
+
 
   getBarrel() {
     let vx = cos(360 - this.barrelAngle) * this.barrelLength 
@@ -152,6 +175,10 @@ class Player {
     // console.log("vy: " + vy)
     let v = createVector(round(vx), round(-vy))
     return v
+  }
+
+  getIsDead() {
+    return this.isDead
   }
 
 }

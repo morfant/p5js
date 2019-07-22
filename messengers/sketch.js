@@ -3,16 +3,19 @@ g_height = 0
 g_borderThickness = 4 
 g_playerArray = []
 g_bulletArray = []
+g_playerLifeLimit = 10
 
 let playerPosition = []
-let p1 = new Player(300, 200, 1)
+let p1 = new Player(200, 200, 1)
 g_playerArray.push(p1)
 let p2 = new Player(600, 200, 2)
+p2.setBarrelAngle(180)
 g_playerArray.push(p2)
 
 function setup() {
   // put setup code here
   createCanvas(800, 500)
+  // createCanvas(1800, 1500)
   angleMode(DEGREES)
 
   // p1.setEnvironment(width, height, borderThickness)
@@ -79,12 +82,24 @@ function draw() {
 
 
 
-  p1.update()
-  p1.draw()
-  p2.update()
-  p2.draw()
-  playerPosition[0] = p1.getPosition()
-  playerPosition[1] = p2.getPosition()
+  for (let i = g_playerArray.length - 1; i >= 0; i--) {
+    let p = g_playerArray[i]
+    if (p.getIsDead()) {
+      delete p
+      g_playerArray.splice(i, 1)
+    } else {
+      p.update()
+      p.draw()
+      playerPosition[i] = p.getPosition()
+    }
+  }
+
+  // p1.update()
+  // p1.draw()
+  // p2.update()
+  // p2.draw()
+  // playerPosition[0] = p1.getPosition()
+  // playerPosition[1] = p2.getPosition()
 
   for (let i = g_bulletArray.length - 1; i >= 0; i--) {
     let b = g_bulletArray[i]
@@ -107,29 +122,59 @@ function draw() {
 function keyTyped() {
   if (key === 'f') {
 
-    let barrelVector = p1.getBarrel()
-    let bulletPosX = playerPosition[0].x + barrelVector.x
-    let bulletPosY = playerPosition[0].y + barrelVector.y 
+    // let barrelVector = p1.getBarrel()
+    // let bulletPosX = playerPosition[0].x + barrelVector.x
+    // let bulletPosY = playerPosition[0].y + barrelVector.y 
 
-    let b = new Bullet(bulletPosX, bulletPosY, barrelVector)
+    // let b = new Bullet(bulletPosX, bulletPosY, barrelVector)
+    let b = new Bullet(p1)
     b.shoot()
     g_bulletArray.push(b)
 
   }
 
   if (key === 'h') {
-    let barrelVector = p2.getBarrel()
-    let bulletPosX = playerPosition[1].x + barrelVector.x
-    let bulletPosY = playerPosition[1].y + barrelVector.y 
+    // let barrelVector = p2.getBarrel()
+    // let bulletPosX = playerPosition[1].x + barrelVector.x
+    // let bulletPosY = playerPosition[1].y + barrelVector.y 
 
-    let b = new Bullet(bulletPosX, bulletPosY, barrelVector)
+    // let b = new Bullet(bulletPosX, bulletPosY, barrelVector)
+    let b = new Bullet(p2)
     b.shoot()
     g_bulletArray.push(b)
+  }
+
+
+  if (key === '1') {
+    resetPlayer(1)
+  } else if (key === '2') {
+    resetPlayer(2)
   }
 
   return false;
 }
 
+
+function resetPlayer(playerId) {
+
+  if (playerId === 1) {
+    if (p1.getIsDead() === true) {
+      p1 = new Player(200, 200, playerId)
+      p1.setColor(255, 204, 0)
+      g_playerArray.push(p1)
+    }
+  } else if (playerId === 2) {
+    if (p2.getIsDead() === true) {
+      p2 = new Player(600, 200, playerId)
+      p2.setColor(100, 174, 100)
+      p2.setBarrelAngle(180)
+      g_playerArray.push(p2)
+    }
+  }
+
+
+
+}
 
 function keyPressed() {
   if (keyCode === LEFT_ARROW) {

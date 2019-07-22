@@ -1,9 +1,10 @@
 class Bullet {
   
-  constructor(posX, posY, targetForce) {
+  // constructor(posX, posY, targetForce) {
+  constructor(p) { // p = player instance
     this.radius = 10 
-    this.posX = posX 
-    this.posY = posY 
+    this.posX = 0
+    this.posY = 0
     this.velX = 0
     this.velY = 0
     this.mass = 1
@@ -12,13 +13,24 @@ class Bullet {
     this.colorG = 200
     this.colorB = 10
 
+    this.player = p
     this.type = '-' // -, +
     this.isDead = false
     this.hitPlayer = false
     this.other = null
 
-    this.targetForce = targetForce
+    this.targetForce = 0
+
+    this.ready()
   }
+
+  ready() {
+    let barrelVector = this.player.getBarrel()
+    this.posX = this.player.getPosition().x + barrelVector.x
+    this.posY = this.player.getPosition().y + barrelVector.y 
+    this.targetForce = barrelVector
+  }
+
 
   shoot() { // f: shooting force
 
