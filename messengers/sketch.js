@@ -117,30 +117,14 @@ function draw() {
 
 
 
-
-
 function keyTyped() {
   if (key === 'f') {
-
-    // let barrelVector = p1.getBarrel()
-    // let bulletPosX = playerPosition[0].x + barrelVector.x
-    // let bulletPosY = playerPosition[0].y + barrelVector.y 
-
-    // let b = new Bullet(bulletPosX, bulletPosY, barrelVector)
     let b = new Bullet(p1)
-    b.shoot()
     g_bulletArray.push(b)
-
   }
 
   if (key === 'h') {
-    // let barrelVector = p2.getBarrel()
-    // let bulletPosX = playerPosition[1].x + barrelVector.x
-    // let bulletPosY = playerPosition[1].y + barrelVector.y 
-
-    // let b = new Bullet(bulletPosX, bulletPosY, barrelVector)
     let b = new Bullet(p2)
-    b.shoot()
     g_bulletArray.push(b)
   }
 

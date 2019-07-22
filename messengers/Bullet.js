@@ -29,23 +29,20 @@ class Bullet {
     this.posX = this.player.getPosition().x + barrelVector.x
     this.posY = this.player.getPosition().y + barrelVector.y 
     this.targetForce = barrelVector
+
+    this.shoot()
   }
 
 
   shoot() { // f: shooting force
 
-    // console.log("shoot " + targetForce);
-
     this.accX = this.targetForce.x/this.mass / 10
     this.accY = this.targetForce.y/this.mass / 10
-
     // console.log(this.accX + " / " + this.accY);
 
     this.velX = this.velX + this.accX
     this.velY = this.velY + this.accY
-
     // console.log(this.velX + " / " + this.velY);
-    
 
   }
 
@@ -64,10 +61,10 @@ class Bullet {
 
   }
 
+
   update() {
 
-    // console.log("hitT: " + this.hitT + " hitB: " + this.hitB + " hitL: " + this.hitL + " hitR: " + this.hitR )
-
+    // check out of borders
     if (this.posX > g_width  || this.posX < 0 || this.posY > g_height || this.posY < 0) {
       this.isDead = true
     }
@@ -75,7 +72,6 @@ class Bullet {
     // move player
     this.posX = this.posX + this.velX
     this.posY = this.posY + this.velY
-
     // console.log("x: " + this.posX + " / y: " + this.posY)
 
   }
