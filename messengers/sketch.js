@@ -4,6 +4,7 @@ g_borderThickness = 4
 g_playerArray = []
 g_bulletArray = []
 g_playerLifeLimit = 10
+g_velocityLimit = 18 
 
 let playerPosition = []
 let p1 = new Player(200, 200, 1)

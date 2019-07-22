@@ -47,10 +47,8 @@ class Player {
     this.accX = fx/this.mass
     this.accY = fy/this.mass
 
-    if (!this.hitT && !this.hitB && !this.hitL && !this.hitR) {
-      this.velX = this.velX + this.accX
-      this.velY = this.velY + this.accY
-    }
+    this.velX = this.velX + this.accX
+    this.velY = this.velY + this.accY
 
     // console.log("accx: " + this.accX);
 
@@ -92,6 +90,27 @@ class Player {
       this.velY = this.velY + this.friction * this.mass
     }
 
+    // prevent drift
+    if (abs(this.velX) < this.friction) this.velX = 0
+    if (abs(this.velY) < this.friction) this.velY = 0
+
+
+    // velocity limit
+    if (abs(this.velX) > g_velocityLimit) {
+      if (this.velX > 0) this.velX = g_velocityLimit
+      else this.velX = -g_velocityLimit
+    }
+    if (abs(this.velY) > g_velocityLimit) {
+      if (this.velY > 0) this.velY = g_velocityLimit 
+      else this.velY = -g_velocityLimit 
+    } 
+    
+    // debug
+    if (this.posX > g_width || this.posX < 0) console.log("need velX limit: " + this.velX)
+    if (this.posY > g_height|| this.posY < 0) console.log("need velY limit: " + this.velY)
+    
+
+
     // collide with border
     this.hitT = collideRectCircle(0, 0, g_width, g_borderThickness, this.posX, this.posY, this.radius)
     this.hitB = collideRectCircle(0, g_height - g_borderThickness, g_width, g_borderThickness, this.posX, this.posY, this.radius) 
@@ -102,24 +121,26 @@ class Player {
 
     // bound player
     let bumper = 4
+    let bouncingForce = 0.8
+
     if (this.hitT) {
       this.posY = this.radius/2 + bumper 
-      this.velY = this.velY * -0.7
+      this.velY = this.velY * -bouncingForce
     }
 
     if (this.hitB) {
       this.posY = g_height - this.radius/2 - bumper 
-      this.velY = this.velY * -0.7
+      this.velY = this.velY * -bouncingForce
     }
 
     if (this.hitL) {
       this.posX = this.radius/2 + bumper
-      this.velX = this.velX * -0.7 
+      this.velX = this.velX * -bouncingForce 
     }
 
     if (this.hitR) {
       this.posX = g_width - this.radius/2 - bumper
-      this.velX = this.velX * -0.7 
+      this.velX = this.velX * -bouncingForce 
     }
 
 
