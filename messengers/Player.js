@@ -47,8 +47,10 @@ class Player {
     this.accX = fx/this.mass
     this.accY = fy/this.mass
 
-    this.velX = this.velX + this.accX
-    this.velY = this.velY + this.accY
+    if (!this.hitT && !this.hitB && !this.hitL && !this.hitR) {
+      this.velX = this.velX + this.accX
+      this.velY = this.velY + this.accY
+    }
 
     // console.log("accx: " + this.accX);
 
@@ -96,14 +98,28 @@ class Player {
     this.hitL = collideRectCircle(0, 0, g_borderThickness, g_height, this.posX, this.posY, this.radius)
     this.hitR = collideRectCircle(g_width - g_borderThickness, 0, g_borderThickness, g_height, this.posX, this.posY, this.radius)
     // console.log("hitT: " + this.hitT + " hitB: " + this.hitB + " hitL: " + this.hitL + " hitR: " + this.hitR )
+    // console.log("hitT: " + this.hitT )
 
     // bound player
-    if (this.hitT || this.hitB) {
-      this.velY = this.velY * -1
+    let bumper = 4
+    if (this.hitT) {
+      this.posY = this.radius/2 + bumper 
+      this.velY = this.velY * -0.7
     }
 
-    if (this.hitL || this.hitR) {
-      this.velX = this.velX * -1 
+    if (this.hitB) {
+      this.posY = g_height - this.radius/2 - bumper 
+      this.velY = this.velY * -0.7
+    }
+
+    if (this.hitL) {
+      this.posX = this.radius/2 + bumper
+      this.velX = this.velX * -0.7 
+    }
+
+    if (this.hitR) {
+      this.posX = g_width - this.radius/2 - bumper
+      this.velX = this.velX * -0.7 
     }
 
 
@@ -145,10 +161,12 @@ class Player {
 
   makeBigger() {
     this.radius += 5
+    this.mass += 0.1
   }
 
   makeSmaller() {
     this.radius -= 5
+    this.mass -= 0.1
   }
 
   getPosition() {
@@ -165,8 +183,7 @@ class Player {
   }
 
   setBarrelAngle(deg) {
-    console.log(deg);
-    
+    // console.log(deg);
     this.barrelAngle = deg
   }
 
