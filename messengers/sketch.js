@@ -7,8 +7,10 @@ g_playerLifeLimit = 10
 
 let playerPosition = []
 let p1 = new Player(200, 200, 1)
+p1.setMsgPattern("-++--")
 g_playerArray.push(p1)
 let p2 = new Player(600, 200, 2)
+p2.setMsgPattern("+--+-")
 p2.setBarrelAngle(180)
 g_playerArray.push(p2)
 
@@ -145,12 +147,14 @@ function resetPlayer(playerId) {
     if (p1.getIsDead() === true) {
       p1 = new Player(200, 200, playerId)
       p1.setColor(255, 204, 0)
+      p1.setMsgPattern("-++--")
       g_playerArray.push(p1)
     }
   } else if (playerId === 2) {
     if (p2.getIsDead() === true) {
       p2 = new Player(600, 200, playerId)
       p2.setColor(100, 174, 100)
+      p2.setMsgPattern("+--+-")
       p2.setBarrelAngle(180)
       g_playerArray.push(p2)
     }

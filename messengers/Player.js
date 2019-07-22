@@ -25,6 +25,14 @@ class Player {
 
     this.isDead = false
 
+    this.msgPatten = "-+--+"
+    this.patternIndex = 0
+
+  }
+
+
+  setMsgPattern(str) {
+    this.msgPatten = str
   }
 
   setColor(r, g, b) {
@@ -177,9 +185,24 @@ class Player {
     return v
   }
 
+
+  getMsgPattern() {
+    return this.msgPatten
+  }
+
+  getPatternIndex() {
+    return this.patternIndex
+  }
+
+  nextPatternIndex() {
+    this.patternIndex = (this.patternIndex + 1) % this.msgPatten.length
+  }
+
+
   getIsDead() {
     return this.isDead
   }
+
 
 }
 

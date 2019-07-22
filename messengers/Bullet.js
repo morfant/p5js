@@ -13,6 +13,10 @@ class Bullet {
     this.colorG = 200
     this.colorB = 10
 
+    this.colorRR = 20
+    this.colorGG = 100
+    this.colorBB = 240
+
     this.player = p
     this.type = '-' // -, +
     this.isDead = false
@@ -29,6 +33,12 @@ class Bullet {
     this.posX = this.player.getPosition().x + barrelVector.x
     this.posY = this.player.getPosition().y + barrelVector.y 
     this.targetForce = barrelVector
+
+    let msgPattern = this.player.getMsgPattern()
+    let patternLength = msgPattern.length
+    let patternIndex = this.player.getPatternIndex()
+    this.type = msgPattern[patternIndex]
+    this.player.nextPatternIndex()
 
     this.shoot()
   }
@@ -79,8 +89,13 @@ class Bullet {
   draw() {
 
     noStroke()
-    fill(this.colorR, this.colorG, this.colorB)
-    ellipse(this.posX, this.posY, this.radius)
+    if (this.type === '-') {
+      fill(this.colorR, this.colorG, this.colorB)
+      ellipse(this.posX, this.posY, this.radius)
+    } else if (this.type === '+') {
+      fill(this.colorRR, this.colorGG, this.colorBB)
+      ellipse(this.posX, this.posY, this.radius)
+    }
 
   }
 
